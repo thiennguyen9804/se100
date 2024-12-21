@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* .primary-bg {
+  @apply 'bg-gradient-radial from-white via-transparent to-gray-200/50';
+} */
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
