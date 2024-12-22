@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { useAuth } from '../../hooks/useAuth';
 
 const LoginScreen = () => {
   
@@ -6,6 +7,8 @@ const LoginScreen = () => {
     email: '',
     password: ''
   });
+
+  const { loginMutation } = useAuth()
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -15,10 +18,15 @@ const LoginScreen = () => {
     });
   };
 
+  const handleSubmit = e => {
+    e.preventDefault()
+    loginMutation.mutate(formState)
+  }
+
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-slate-100">
       <div className="w-[450px] rounded-lg shadow-md bg-white">
-        <form className="p-6 space-y-4">
+        <form className="p-6 space-y-4" onSubmit={handleSubmit}>
           <h1 className="text-xl text-black font-semibold text-center mb-6">
             Login
           </h1>

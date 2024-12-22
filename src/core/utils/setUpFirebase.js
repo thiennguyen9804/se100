@@ -24,7 +24,9 @@ export const setUpFirebase = () => {
 }
 
 export const getFirebaseAuth = () => {
+	setUpFirebase()
 	if(app != undefined) {
+		setUpFirebase()
 		return getAuth(app)
 	} else {
 		throw Error('Firebase app is not initialized yet!!!')
