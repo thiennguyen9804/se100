@@ -1,10 +1,11 @@
 import React from 'react'
+import { useGoods } from '../../../hooks/useGoods.js'
 
 const GoodsListManager = () => {
 	const { data: goodsList, isLoading} = useGoods();
 
 	return (
-		<div className="flex-1 bg-white p-4 shadow-md overflow-auto">
+		<div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
 			<div className="flex justify-between items-center mb-4">
 				{/* Buttons */}
 				<div className="space-x-2">

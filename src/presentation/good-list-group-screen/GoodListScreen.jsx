@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TopNavigationBar from "./components/TopNavigationBar";
-import useGoods from "../../hooks/useGoods";
+
 import { Routes, Route } from "react-router";
 import GoodsListManager from "./components/GoodsListManager";
 
@@ -30,7 +30,7 @@ const GoodListScreen = () => {
       {/* <TopNavigationBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} /> */}
 
       {/* Table Section */}
-      <GoodListScreen/>
+      <GoodsListManager/>
     </div>
   );
 };

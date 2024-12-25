@@ -5,6 +5,7 @@ import Topbar from "./presentation/components/TopBar"; // Import Topbar
 import Inbound from "./presentation/inbound_screen/inbound"; // Import component Inbound
 import { useState } from "react"; 
 import { Routes, Route } from 'react-router';
+import GoodListScreen from './presentation/good-list-group-screen/GoodListScreen';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state
@@ -26,7 +27,7 @@ function App() {
               <Route path="/inventory" element={<h1>Inventory</h1>} />
               <Route path="/warehouse" element={<h1>Warehouse</h1>} />
               <Route path="/base-info" element={<h1>Base Info</h1>} />
-              <Route path="/goods-list" element={<h1>Goods List</h1>} />
+              <Route path="/goods-list" element={<GoodListScreen/>} />
               <Route path="/staff" element={<h1>Staff</h1>} />
               <Route path="/driver" element={<h1>Driver</h1>} />
               <Route

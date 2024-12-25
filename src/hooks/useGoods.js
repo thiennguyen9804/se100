@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllGoods } from "../api/goodsApi";
 
-const useGoods = () => {
+export const useGoods = () => {
 	const {
 		data, // Đặt alias cho data là goods
 		isLoading,
@@ -24,5 +24,3 @@ const useGoods = () => {
 		refetch,    // Hàm để làm mới dữ liệu
 	};
 };
-
-export default useGoods;

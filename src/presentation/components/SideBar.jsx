@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Sử dụng react-router-dom
+import { Link } from "react-router"; // Sử dụng react-router-dom
 
 const Sidebar = ({ isSidebarOpen }) => {
   // Nhận state từ App.jsx
