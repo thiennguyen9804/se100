@@ -7,12 +7,12 @@ import { getFirestore } from "firebase/firestore";
 // Cấu hình Firebase của bạn
 const firebaseConfig = {
   apiKey: "AIzaSyCNHdwOxAZu5Vm-uFEKYyMdZthh3zFeXog",
-  authDomain: "YOUR_AUTH_DOMAIN",
+  authDomain: "se100-7efcd.firebaseapp.com",
   projectId: "se100-7efcd",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
+  storageBucket: "se100-7efcd.firebasestorage.app",
+  messagingSenderId: "639001359925",
+  appId: "1:639001359925:web:9621a33734c72e496be37c",
+  measurementId: "G-CC7X06WR18",
 };
 
 // Khởi tạo Firebase
