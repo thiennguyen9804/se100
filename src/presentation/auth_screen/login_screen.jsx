@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useAuth } from '../../hooks/useAuth';
 
 const LoginScreen = () => {
@@ -8,8 +8,9 @@ const LoginScreen = () => {
     password: ''
   });
 
-  const { loginMutation } = useAuth()
+  const { mutate: login, data: user } = useAuth()
 
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormState({
@@ -17,15 +18,17 @@ const LoginScreen = () => {
       [name]: value
     });
   };
-
+  
   const handleSubmit = e => {
     e.preventDefault()
-    loginMutation.mutate(formState)
+    login(formState)
+
     // const res = loginMutation;
     // console.log("🚀 ~ handleSubmit ~ res:", res)
   }
 
-  return (
+
+  return (    
     <main className="fixed inset-0 flex items-center justify-center bg-slate-100">
       <div className="w-[450px] rounded-lg shadow-md bg-white">
         <form className="p-6 space-y-4" onSubmit={handleSubmit}>

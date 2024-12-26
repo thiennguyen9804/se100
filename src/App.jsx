@@ -6,6 +6,7 @@ import Inbound from "./presentation/inbound_screen/inbound"; // Import component
 import { useState } from "react"; 
 import { Routes, Route } from 'react-router';
 import GoodListScreen from './presentation/good-list-group-screen/GoodListScreen';
+import StaffScreen from './presentation/staff_screen/StaffScreen';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state
@@ -37,7 +38,8 @@ function App() {
 
               <Route path="/" element={<h1>Welcome to GreaterWMS</h1>} />
             </Routes> */}
-            <LoginScreen/>
+            {/* <LoginScreen/> */}
+            <StaffScreen/>
           </div>
         </div>
       </div>

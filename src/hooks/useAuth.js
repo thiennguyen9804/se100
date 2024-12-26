@@ -5,17 +5,11 @@ import { login } from "../api/authApi";
 export const useAuth = () => {
 	// const queryClient = useQueryClient();
 	
-	const loginMutation = useMutation({
+	const {mutate, data, } = useMutation({
 		mutationFn: login,
-		onSuccess: ((data) => {
-			console.log('success:', data)
-		}),
-		onError: ((error) => {
-			// console.log('error:', error.message);
-			alert(error.message)
-		})
+		onError: error => alert(error.message),
 	})
 
 
-	return { loginMutation }
+	return { mutate, data, }
 }

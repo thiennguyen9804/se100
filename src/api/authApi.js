@@ -11,7 +11,6 @@ export const login = async ({ email, password }) => {
 		throw Error('Hãy nhập đủ dữ liệu nhé!')
 	}
 
-
 	const staffRef = collection(db, "Staff")
 	const q = query(staffRef, where('Mail', '==', email), where('Pass', '==', password))
 	const querySnapshot = await getDocs(q);
