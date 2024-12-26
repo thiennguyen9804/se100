@@ -3,7 +3,7 @@ import { getAllInventory } from "../api/inventoryApi";
 
 export const useInventory = () => {
   const {
-    data, // Đặt alias cho data là goods
+    data, // Đặt alias cho data là inventory
     isLoading,
     isError,
     error,

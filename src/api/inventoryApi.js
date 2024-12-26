@@ -32,19 +32,14 @@ const inventoryList = [
 ];
 
 export const getAllInventory = async () => {
-  await delay(3000);
-  return inventoryList;
-
-  /*
   try {
     const querySnapshot = await getDocs(collection(db, "Inventory"));
     const fetchedData = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-    console.log(fetchedData);
     return fetchedData;
   } catch (error) {
     console.error("Error fetching data:", error);
-  }*/
+  }
 };

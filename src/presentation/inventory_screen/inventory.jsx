@@ -1,18 +1,49 @@
 import React, { useState } from "react";
 import { useInventory } from "../../hooks/useInventory";
+import { Timestamp } from "firebase/firestore";
+
+function convertTimestampToDate(timestamp) {
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toDate().toLocaleString(); // Chuyển sang chuỗi hiển thị được
+  }
+  return timestamp; // Trả về nếu không phải là Timestamp
+}
 
 const InventoryScreen = ({ isSidebarOpen }) => {
-  const { data: inventoryList, isLoading } = useInventory();
+  const { data: inventoryList, isLoading, refetch } = useInventory();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Lọc sản phẩm theo từ khóa tìm kiếm
+  const filteredInventory = inventoryList?.filter((item) => {
+    const searchLower = searchTerm.toLowerCase();
+
+    // Kiểm tra từng thuộc tính của sản phẩm
+    return (
+      item.id?.toLowerCase().includes(searchLower) ||
+      item.Name?.toLowerCase().includes(searchLower) ||
+      item.ProductType?.toLowerCase().includes(searchLower) ||
+      item.Quantity?.toString().includes(searchLower) ||
+      item.Location?.toLowerCase().includes(searchLower) ||
+      (item.CreateTime &&
+        convertTimestampToDate(item.CreateTime)
+          .toLowerCase()
+          .includes(searchLower)) ||
+      (item.UpdateTime &&
+        convertTimestampToDate(item.UpdateTime)
+          .toLowerCase()
+          .includes(searchLower))
+    );
+  });
 
   return (
     <div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
         {/* Buttons */}
         <div className="space-x-2">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            + NEW
-          </button>
-          <button className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300">
+          <button
+            onClick={refetch} // Gọi refetch khi bấm Refresh
+            className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
+          >
             REFRESH
           </button>
         </div>
@@ -22,6 +53,8 @@ const InventoryScreen = ({ isSidebarOpen }) => {
             type="text"
             placeholder="Search Word"
             className="border border-gray-300 rounded-md px-4 py-2 w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật từ khóa tìm kiếm
           />
         </div>
       </div>
@@ -47,14 +80,8 @@ const InventoryScreen = ({ isSidebarOpen }) => {
                   Loading...
                 </td>
               </tr>
-            ) : !inventoryList ? (
-              <tr className="text-gray-600">
-                <td className="border border-gray-300 px-4 py-2" colSpan={10}>
-                  NO MORE DATA
-                </td>
-              </tr>
-            ) : (
-              inventoryList.map((item, index) => (
+            ) : filteredInventory?.length > 0 ? (
+              filteredInventory.map((item, index) => (
                 <tr key={index} className="text-black">
                   <td className="border border-gray-300 px-4 py-2">
                     {item.id}
@@ -72,10 +99,14 @@ const InventoryScreen = ({ isSidebarOpen }) => {
                     {item.Location}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {item.CreateTime}
+                    {item.CreateTime
+                      ? convertTimestampToDate(item.CreateTime)
+                      : "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {item.UpdateTime}
+                    {item.UpdateTime
+                      ? convertTimestampToDate(item.UpdateTime)
+                      : "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 flex">
                     <button className="bg-blue-500 text-white px-2 py-1 rounded">
@@ -87,6 +118,12 @@ const InventoryScreen = ({ isSidebarOpen }) => {
                   </td>
                 </tr>
               ))
+            ) : (
+              <tr className="text-gray-600">
+                <td className="border border-gray-300 px-4 py-2" colSpan={10}>
+                  NO MORE DATA
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
