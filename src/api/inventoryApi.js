@@ -1,4 +1,4 @@
-import { db } from "../firebase";
+import { db } from "../core/utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
 const inventoryList = [
