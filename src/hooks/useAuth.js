@@ -11,8 +11,8 @@ export const useAuth = () => {
 			console.log('success:', data)
 		}),
 		onError: ((error) => {
-			console.log('error:', error);
-			
+			// console.log('error:', error.message);
+			alert(error.message)
 		})
 	})
 

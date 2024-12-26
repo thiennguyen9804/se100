@@ -20,7 +20,7 @@ function App() {
         <div className="flex flex-col flex-1">
           {/* <Topbar /> */}
           <div className="p-6 overflow-y-auto"> {/* Thêm overflow-y-auto */}
-            <Routes>
+            {/* <Routes>
               <Route path="/dashboard" element={<h1>Dashboard</h1>} />
               <Route path="/inbound" element={<Inbound />} />
               <Route path="/outbound" element={<h1>Outbound</h1>} />
@@ -36,7 +36,8 @@ function App() {
               />
 
               <Route path="/" element={<h1>Welcome to GreaterWMS</h1>} />
-            </Routes>
+            </Routes> */}
+            <LoginScreen/>
           </div>
         </div>
       </div>

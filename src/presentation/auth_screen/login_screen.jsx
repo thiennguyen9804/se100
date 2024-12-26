@@ -21,6 +21,8 @@ const LoginScreen = () => {
   const handleSubmit = e => {
     e.preventDefault()
     loginMutation.mutate(formState)
+    // const res = loginMutation;
+    // console.log("🚀 ~ handleSubmit ~ res:", res)
   }
 
   return (
