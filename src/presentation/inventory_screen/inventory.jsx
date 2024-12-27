@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useInventory } from "../../hooks/useInventory";
 import { Timestamp } from "firebase/firestore";
+import { updateInventory, deleteInventory } from "../../api/inventoryApi";
+import EditModal from "./edit_modal";
+import DeleteModal from "./delete_modal";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -9,9 +12,46 @@ function convertTimestampToDate(timestamp) {
   return timestamp; // Trả về nếu không phải là Timestamp
 }
 
+// Lưu chỉnh sửa
+const saveEdit = async (updatedProduct, setEditProduct, refetch) => {
+  if (!updatedProduct) return;
+
+  // Thêm trường UpdateTime với giá trị thời gian hiện tại
+  const updatedData = {
+    ...updatedProduct,
+    UpdateTime: Timestamp.now(), // Thời gian hiện tại
+  };
+
+  try {
+    await updateInventory(updatedProduct.id, updatedData);
+    setEditProduct(null);
+    refetch(); // Refresh dữ liệu
+    alert("Product updated successfully!");
+  } catch (error) {
+    alert("Failed to update product. Please try again.");
+    console.error("Error updating product:", error);
+  }
+};
+
+// Xác nhận xóa
+const confirmDelete = async (deleteProductId, setDeleteProductId, refetch) => {
+  if (!deleteProductId) return;
+  try {
+    await deleteInventory(deleteProductId);
+    setDeleteProductId(null);
+    refetch(); // Refresh dữ liệu
+    alert("Product deleted successfully!");
+  } catch (error) {
+    alert("Failed to delete product. Please try again.");
+    console.error("Error deleting product:", error);
+  }
+};
+
 const InventoryScreen = ({ isSidebarOpen }) => {
   const { data: inventoryList, isLoading, refetch } = useInventory();
   const [searchTerm, setSearchTerm] = useState("");
+  const [editProduct, setEditProduct] = useState(null);
+  const [deleteProductId, setDeleteProductId] = useState(null);
 
   // Lọc sản phẩm theo từ khóa tìm kiếm
   const filteredInventory = inventoryList?.filter((item) => {
@@ -71,6 +111,7 @@ const InventoryScreen = ({ isSidebarOpen }) => {
               <th className="border border-gray-300 px-4 py-2">Location</th>
               <th className="border border-gray-300 px-4 py-2">Create Time</th>
               <th className="border border-gray-300 px-4 py-2">Update Time</th>
+              <th className="border border-gray-300 px-4 py-2">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -109,10 +150,16 @@ const InventoryScreen = ({ isSidebarOpen }) => {
                       : "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 flex">
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded">
+                    <button
+                      onClick={() => setEditProduct(item)} // Hiện modal Edit
+                      className="bg-blue-500 text-white px-2 py-1 rounded"
+                    >
                       Edit
                     </button>
-                    <button className="bg-red-500 text-white px-2 py-1 ml-2 rounded">
+                    <button
+                      onClick={() => setDeleteProductId(item.id)} // Hiện modal Delete
+                      className="bg-red-500 text-white px-2 py-1 ml-2 rounded"
+                    >
                       Delete
                     </button>
                   </td>
@@ -128,6 +175,25 @@ const InventoryScreen = ({ isSidebarOpen }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Modals */}
+      {editProduct && (
+        <EditModal
+          product={editProduct}
+          onSave={(updatedProduct) =>
+            saveEdit(updatedProduct, setEditProduct, refetch)
+          }
+          onCancel={() => setEditProduct(null)} // Đóng modal
+        />
+      )}
+      {deleteProductId && (
+        <DeleteModal
+          onConfirm={() =>
+            confirmDelete(deleteProductId, setDeleteProductId, refetch)
+          }
+          onCancel={() => setDeleteProductId(null)} // Đóng modal
+        />
+      )}
     </div>
   );
 };

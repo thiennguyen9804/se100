@@ -1,35 +1,11 @@
 import { db } from "../core/utils/firebase";
-import { collection, getDocs } from "firebase/firestore";
-
-const inventoryList = [
-  {
-    InventoryID: "I001",
-    Name: "Sữa vinamilk",
-    ProductType: "Sữa",
-    Quantity: 10,
-    Location: "Kho số 3",
-    CreateTime: "2024-12-25 15:28:24",
-    UpdateTime: "December 24, 2024 at 9:56:43 PM UTC+7",
-  },
-  {
-    InventoryID: "I002",
-    Name: "Cá hộp 3 cô gái",
-    ProductType: "Đồ hộp",
-    Quantity: 10,
-    Location: "Kho số 2",
-    CreateTime: "2024-12-25 15:28:24",
-    UpdateTime: "December 24, 2024 at 9:56:43 PM UTC+7",
-  },
-  {
-    InventoryID: "I003",
-    Name: "Mực đông lạnh",
-    ProductType: "Đồ đông lạnh",
-    Quantity: 10,
-    Location: "Kho số 1",
-    CreateTime: "2024-12-25 15:28:24",
-    UpdateTime: "December 24, 2024 at 9:56:43 PM UTC+7",
-  },
-];
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 export const getAllInventory = async () => {
   try {
@@ -41,5 +17,27 @@ export const getAllInventory = async () => {
     return fetchedData;
   } catch (error) {
     console.error("Error fetching data:", error);
+  }
+};
+
+// Cập nhật sản phẩm
+export const updateInventory = async (productId, updatedData) => {
+  try {
+    await updateDoc(doc(db, "Inventory", productId), updatedData);
+    console.log("Product updated successfully!");
+  } catch (error) {
+    console.error("Error updating product:", error);
+    throw error;
+  }
+};
+
+// Xóa sản phẩm
+export const deleteInventory = async (productId) => {
+  try {
+    await deleteDoc(doc(db, "Inventory", productId));
+    console.log("Product deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    throw error;
   }
 };
