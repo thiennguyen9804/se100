@@ -12,6 +12,8 @@ const Sidebar = ({ isSidebarOpen }) => {
     { name: "Goods List", icon: "📃", path: "/goods-list" },
     { name: "Warehouse", icon: "🏢", path: "/warehouse" },
     { name: "Base Info", icon: "🏠", path: "/base-info" },
+    { name: "Supplier", icon: "👨‍🌾", path: "/supplier" },
+    { name: "Customer", icon: "🤵", path: "/customer" },
     <hr key="hr2" />,
     { name: "Staff", icon: "👤", path: "/staff" },
     { name: "Driver", icon: "🚚", path: "/driver" },
