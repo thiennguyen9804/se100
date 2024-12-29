@@ -1,16 +1,14 @@
-import { LoginScreen } from "./presentation/auth_screen";
 import Sidebar from "./presentation/components/SideBar";
-// import Content from "./components/Content";
-import Topbar from "./presentation/components/TopBar"; // Import Topbar
-import Inbound from "./presentation/inbound_screen/inbound"; // Import component Inbound
+import Topbar from "./presentation/components/TopBar";
+import InboundReceiptScreen from "./presentation/inbound_screen/inbound";
 import { useState } from "react";
 import { Routes, Route } from "react-router";
-import GoodListScreen from "./presentation/good-list-group-screen/GoodListScreen";
 import StaffScreen from "./presentation/staff_screen/StaffScreen";
 import SupplierScreen from "./presentation/supplier_screen/SupplierScreen";
 import { Inventory } from "@mui/icons-material";
 import InventoryScreen from "./presentation/inventory_screen/inventory";
 import CustomerScreen from "./presentation/customer_screen/CustomerScreen";
+import OutboundReceiptScreen from "./presentation/outbound_screen/outbound";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state
@@ -36,10 +34,10 @@ function App() {
             {/* Thêm overflow-y-auto */}
             {
               <Routes>
-                <Route path="/inbound" element={<Inbound />} />
-                <Route path="/outbound" element={<h1>Outbound</h1>} />
+                <Route path="/" element={<InventoryScreen />} />
+                <Route path="/inbound" element={<InboundReceiptScreen />} />
+                <Route path="/outbound" element={<OutboundReceiptScreen />} />
                 <Route path="/inventory" element={<InventoryScreen />} />
-                <Route path="/goods-list" element={<GoodListScreen />} />
                 <Route path="/staff" element={<StaffScreen />} />
                 <Route path="/supplier" element={<SupplierScreen />} />
                 <Route path="/customer" element={<CustomerScreen />} />
