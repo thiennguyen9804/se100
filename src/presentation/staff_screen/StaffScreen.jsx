@@ -7,7 +7,11 @@ import StaffInfoModal from "./components/StaffInfoModal";
 
 const StaffScreen = ({ isSidebarOpen }) => {
 	const [searchWord, setSearchWord] = useState("");
-	const { data, isLoading, addStaffMutation, updateStaffMutation } = useStaff();
+	const { 
+		data, isLoading, 
+		addStaffMutation, updateStaffMutation,
+		deleteStaffMutation
+	} = useStaff();
 	const [filteredData, setFilteredData] = useState([])
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentStaff, setCurrentStaff] = useState(null); // Dữ liệu hiện tại để chỉnh sửa
@@ -50,7 +54,10 @@ const StaffScreen = ({ isSidebarOpen }) => {
 	const onAddClick = () => {
 		setCurrentStaff({})
 		setIsModalOpen(true)
+	}
 
+	const onDeleteClick = id => {
+		deleteStaffMutation(id)
 	}
 
 	return (
@@ -68,6 +75,7 @@ const StaffScreen = ({ isSidebarOpen }) => {
 					filteredData={filteredData}
 					isLoading={isLoading}
 					onEditClick={onEditClick}
+					onDeleteClick={onDeleteClick}
 				/>
 
 				<StaffInfoModal

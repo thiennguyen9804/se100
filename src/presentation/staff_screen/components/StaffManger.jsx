@@ -17,7 +17,8 @@ import { Edit, Delete, Visibility, Print } from "@mui/icons-material";
 const StaffManager = ({
 	isLoading,
 	filteredData,
-	onEditClick
+	onEditClick,
+	onDeleteClick
 }) => {
 	useEffect(() => {
 		console.log("🚀 ~ filteredData:", filteredData)
@@ -73,7 +74,7 @@ const StaffManager = ({
 											</IconButton>
 										</Tooltip>
 										<Tooltip title="Delete">
-											<IconButton>
+											<IconButton onClick={() => onDeleteClick(row.id)}>
 												<Delete />
 											</IconButton>
 										</Tooltip>

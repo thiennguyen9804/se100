@@ -1,5 +1,5 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { getAllStaff, addStaff, updateStaff } from "../api/staffApi";
+import { getAllStaff, addStaff, updateStaff, deleteStaff } from "../api/staffApi";
 
 export const useStaff = () => {
 	const queryClient = useQueryClient();
@@ -47,11 +47,25 @@ export const useStaff = () => {
 		}
 	});
 
+	const {
+		mutate: deleteStaffMutation,
+	} = useMutation({
+		mutationFn: deleteStaff,  // Hàm API để thêm nhân viên
+		onSuccess: (data) => {
+			queryClient.invalidateQueries(['staff', 'all']);
+			alert('User deleted successfully')
+		},
+		onError: (error) => {
+			alert(error.message)
+		}
+	});
+
 
 	return {
 		data, isLoading, isError, error,
 		addStaffMutation, isAdding, isAddError, addError,
-		updateStaffMutation
+		updateStaffMutation,
+		deleteStaffMutation
 	}
 }
 

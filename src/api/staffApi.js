@@ -2,7 +2,8 @@ import { delay } from "../core/utils/delay";
 import { 
 	getDocs, collection, where,
 	addDoc, query,
-	updateDoc, doc
+	updateDoc, doc,
+	deleteDoc
 } from "firebase/firestore";
 import { db } from "../core/utils/firebase";
 const data = [
@@ -58,11 +59,14 @@ export const addStaff = async staff => {
 
 export const updateStaff = async staff => {
 	const ref = doc(db, 'Staff', staff.id);
-	// console.log("🚀 ~ updateStaff ~ staff:", staff)
 	const staffWithoutId = { ...staff };
 	delete staffWithoutId.id;
 	await updateDoc(ref, staffWithoutId);
 	return {
 		...staff,
 	};
+}
+
+export const deleteStaff = async id => {
+	await deleteDoc(doc(db, 'Staff', id))
 }
