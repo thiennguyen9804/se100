@@ -1,26 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { roles } from "../../../core/utils/constants";
 import {
 	Modal,
 	Box,
 	TextField,
 	Button,
 	Typography,
+	Select,
+	MenuItem,
+	InputLabel,
+	FormControl,
 } from "@mui/material";
 
-const StaffInfoModal = ({ open, handleClose, initialData, onSave }) => {
-	const [formData, setFormData] = useState(initialData || {});
+const StaffInfoModal = ({ 
+	open, handleClose, 
+	initialData, onSave,
+	// formData, setFormData
+}) => {
+	const [formData, setFormData] = useState({});
+	// console.log("🚀 ~ formData:", formData)
+	// console.log("🚀 ~ initialData:", initialData)
+
+	useEffect(() => {
+		setFormData(initialData || {});
+	}, [initialData]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
+		// console.log("🚀 ~ handleChange ~ name, value:", name, value)
+		
 		setFormData((prev) => ({
 			...prev,
 			[name]: value,
 		}));
 	};
 
+
 	const handleSubmit = () => {
 		onSave(formData);
 		handleClose();
+		setFormData({})
 	};
 
 	return (
@@ -43,9 +62,9 @@ const StaffInfoModal = ({ open, handleClose, initialData, onSave }) => {
 					borderRadius: 2,
 				}}
 			>
-				<Typography id="edit-modal-title" variant="h6" component="h2">
+				{/* <Typography id="edit-modal-title" color="black" variant="h6" component="h2">
 					{initialData ? "Edit Staff" : "Add New Staff"}
-				</Typography>
+				</Typography> */}
 				<Box component="form" sx={{ mt: 2 }}>
 					<TextField
 						fullWidth
@@ -87,14 +106,31 @@ const StaffInfoModal = ({ open, handleClose, initialData, onSave }) => {
 						value={formData.pass || ""}
 						onChange={handleChange}
 					/>
-					<TextField
+					{/* <TextField
 						fullWidth
 						margin="normal"
 						label="Role"
 						name="role"
 						value={formData.role || ""}
 						onChange={handleChange}
-					/>
+					/> */}
+
+					<FormControl fullWidth margin="normal">
+						<InputLabel id="role-label">Role</InputLabel>
+						<Select
+							labelId="role-label"
+							name="role"
+							value={formData.role || ""}
+							onChange={handleChange}
+							label="Role"
+						>
+							{roles.map((role, index) => (
+								<MenuItem key={index} value={role.value}>
+									{role.name}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
 					<Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
 						<Button onClick={handleClose} color="error" sx={{ mr: 2 }}>
 							Cancel

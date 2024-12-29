@@ -45,7 +45,7 @@ function App() {
                 <Route path="/customer" element={<CustomerScreen />} />
               </Routes>
             }
-            <StaffScreen />
+            {/* <StaffScreen /> */}
           </div>
         </div>
       </div>

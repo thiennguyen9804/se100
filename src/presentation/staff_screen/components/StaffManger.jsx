@@ -67,7 +67,7 @@ const StaffManager = ({
 										</Tooltip>
 										<Tooltip title="Edit">
 											<IconButton onClick={() =>
-												onEditClick()
+												onEditClick(row)
 											}>
 												<Edit />
 											</IconButton>

@@ -8,11 +8,12 @@ import {
 const ToolBar = ({
 	searchWord,
 	setSearchWord,
+	onAddClick,
 }) => {
 	return (
 		<div className="flex justify-between items-center mb-4 h-20">
 			<div>
-				<Button variant="contained" color="primary">
+				<Button variant="contained" color="primary" onClick={onAddClick}>
 					+ NEW
 				</Button>
 				<Button variant="outlined" color="primary" className="ml-2">
