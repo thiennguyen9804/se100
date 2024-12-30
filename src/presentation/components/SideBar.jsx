@@ -29,7 +29,7 @@ const Sidebar = ({ isSidebarOpen }) => {
         {navigation.map((item, idx) => (
           <Link
             key={idx}
-            to={item.path}
+            to={`${item.path}`}
             style={{
               display: "flex",
               alignItems: "center",

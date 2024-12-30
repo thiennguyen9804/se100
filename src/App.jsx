@@ -11,6 +11,7 @@ import SupplierScreen from "./presentation/supplier_screen/SupplierScreen";
 import { Inventory } from "@mui/icons-material";
 import InventoryScreen from "./presentation/inventory_screen/inventory";
 import CustomerScreen from "./presentation/customer_screen/CustomerScreen";
+import ProtectedRoute from "./core/presentation/ProtectedRoute";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state
@@ -35,16 +36,30 @@ function App() {
             {" "}
             {/* Thêm overflow-y-auto */}
             {
-              <Routes>
-                <Route path="/inbound" element={<Inbound />} />
-                <Route path="/outbound" element={<h1>Outbound</h1>} />
-                <Route path="/inventory" element={<InventoryScreen />} />
-                <Route path="/goods-list" element={<GoodListScreen />} />
-                <Route path="/staff" element={<StaffScreen />} />
-                <Route path="/supplier" element={<SupplierScreen />} />
-                <Route path="/customer" element={<CustomerScreen />} />
-              </Routes>
+              // <Routes>
+              //   <Route path="/inbound" element={<Inbound />} />
+              //   <Route path="/outbound" element={<h1>Outbound</h1>} />
+              //   <Route path="/inventory" element={<InventoryScreen />} />
+              //   <Route path="/goods-list" element={<GoodListScreen />} />
+              //   <Route path="/staff" element={<StaffScreen />} />
+              //   <Route path="/supplier" element={<SupplierScreen />} />
+              //   <Route path="/customer" element={<CustomerScreen />} />
+              // </Routes>
             }
+
+            <Routes>
+              {/* Màn hình không yêu cầu đăng nhập */}
+              <Route path="/auth/login" element={<LoginScreen />} />
+
+              {/* Màn hình yêu cầu đăng nhập */}
+              <Route path="/inbound" element={<ProtectedRoute element={<Inbound />} />} />
+              <Route path="/outbound" element={<ProtectedRoute element={<h1>Outbound</h1>} />} />
+              <Route path="/inventory" element={<ProtectedRoute element={<InventoryScreen />} />} />
+              <Route path="/goods-list" element={<ProtectedRoute element={<GoodListScreen />} />} />
+              <Route path="/staff" element={<ProtectedRoute element={<StaffScreen />} />} />
+              <Route path="/supplier" element={<ProtectedRoute element={<SupplierScreen />} />} />
+              <Route path="/customer" element={<ProtectedRoute element={<CustomerScreen />} />} />
+            </Routes>
             {/* <StaffScreen /> */}
           </div>
         </div>
