@@ -11,8 +11,8 @@ const Sidebar = ({ isSidebarOpen }) => {
     queryKey: ['currentUser'],
     enabled: false
   });
-  console.log("🚀 ~ Sidebar ~ currentUser:", currentUser)
   
+  console.log("🚀 ~ Sidebar ~ currentUser:", currentUser)
   let navigation
   if(!currentUser) {
     return;

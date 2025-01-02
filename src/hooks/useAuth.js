@@ -15,8 +15,11 @@ export const useAuth = () => {
 		onSuccess: (data) => {
 			setUserData(data)
 			queryClient.setQueryData(["currentUser"], data)
-			
-			navigate("/staff")
+			if(data.Role === roles[0].value) {
+				navigate("/staff")
+			} else if(data.Role === roles[1].value || data.Role === roles[2].value) {
+				navigate('/warehouse')
+			}
 		},
 		onError: error => alert(error.message),
 	})

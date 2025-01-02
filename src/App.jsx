@@ -37,7 +37,6 @@ function App() {
             {
               <Routes>
                 <Route path="/" element={<LoginScreen />}/>
-                {/* <Route path="/" element={<InventoryScreen />} /> */}
                 <Route path="/warehouse/" element={<InboundReceiptScreen />} />
                 <Route path="/warehouse/outbound" element={<OutboundReceiptScreen />} />
                 <Route path="/warehouse/inventory" element={<InventoryScreen />} />
