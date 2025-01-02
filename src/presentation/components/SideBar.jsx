@@ -4,25 +4,25 @@ import { useAuth } from "../../hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { roles } from "../../core/utils/constants";
 
-
 const Sidebar = ({ isSidebarOpen }) => {
   // Lấy thông tin user, phải đăng nhập trước khi lấylấy
   const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
-    enabled: false
+    queryKey: ["currentUser"],
+    enabled: false,
   });
-  
-  console.log("🚀 ~ Sidebar ~ currentUser:", currentUser)
-  let navigation
-  if(!currentUser) {
+
+  console.log("🚀 ~ Sidebar ~ currentUser:", currentUser);
+  let navigation;
+  if (!currentUser) {
     return;
   }
   // Truy cập tới các thuộc tính của user
-  if(currentUser.Role === roles[0].value) {
-    navigation = [
-      { name: "Staff", icon: "👤", path: "/staff" },
-    ];
-  } else if(currentUser.Role === roles[1].value || currentUser.Role === roles[2].value) {
+  if (currentUser.Role === roles[0].value) {
+    navigation = [{ name: "Staff", icon: "👤", path: "/staff" }];
+  } else if (
+    currentUser.Role === roles[1].value ||
+    currentUser.Role === roles[2].value
+  ) {
     navigation = [
       { name: "Inbound", icon: "📥", path: "/warehouse" },
       { name: "Outbound", icon: "📤", path: "/warehouse/outbound" },
@@ -31,8 +31,7 @@ const Sidebar = ({ isSidebarOpen }) => {
       <hr key="hr2" />,
       { name: "Supplier", icon: "👨‍🌾", path: "/warehouse/supplier" },
       { name: "Customer", icon: "🤵", path: "/warehouse/customer" },
-  ];
-
+    ];
   }
   // navigation = [
   //   { name: "Inbound", icon: "📥", path: "/warehouse" },
@@ -56,6 +55,29 @@ const Sidebar = ({ isSidebarOpen }) => {
         transition: "all 0.3s ease-in-out",
       }}
     >
+      <div style={{ padding: "16px", borderBottom: "1px solid #444" }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "20px",
+            color: "yellow",
+            opacity: isSidebarOpen ? 1 : 0,
+          }}
+        >
+          Welcome 🎉
+        </p>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "17px",
+            color: "#FFFFFF",
+            opacity: isSidebarOpen ? 1 : 0,
+          }}
+        >
+          {currentUser.Name}
+        </p>
+      </div>
+
       <nav style={{ flex: 1 }}>
         {navigation.map((item, idx) => (
           <Link

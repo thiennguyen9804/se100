@@ -4,6 +4,7 @@ import { Timestamp } from "firebase/firestore";
 import { updateInventory, deleteInventory } from "../../api/inventoryApi";
 import EditModal from "./edit_modal";
 import DeleteModal from "./delete_modal";
+import { useQuery } from "@tanstack/react-query";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -48,6 +49,11 @@ const confirmDelete = async (deleteProductId, setDeleteProductId, refetch) => {
 };
 
 const InventoryScreen = ({ isSidebarOpen }) => {
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    enalble: false,
+  });
+
   const { data: inventoryList, isLoading, refetch } = useInventory();
   const [searchTerm, setSearchTerm] = useState("");
   const [editProduct, setEditProduct] = useState(null);
@@ -149,16 +155,36 @@ const InventoryScreen = ({ isSidebarOpen }) => {
                       ? convertTimestampToDate(item.UpdateTime)
                       : "N/A"}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2 flex">
+                  <td className="border-t border-gray-300 px-4 py-2 flex">
                     <button
                       onClick={() => setEditProduct(item)} // Hiện modal Edit
-                      className="bg-blue-500 text-white px-2 py-1 rounded"
+                      disabled={currentUser.Role !== "manager"} //disable if is not manager
+                      title={
+                        currentUser.Role !== "manager"
+                          ? "You do not have permission to edit"
+                          : ""
+                      }
+                      className={`px-2 py-1 ml-2 rounded ${
+                        currentUser.Role === "manager"
+                          ? "bg-blue-500 text-white hover:bg-blue-600"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => setDeleteProductId(item.id)} // Hiện modal Delete
-                      className="bg-red-500 text-white px-2 py-1 ml-2 rounded"
+                      disabled={currentUser.Role !== "manager"} //disable if is not manager
+                      title={
+                        currentUser.Role !== "manager"
+                          ? "You do not have permission to edit"
+                          : ""
+                      }
+                      className={`px-2 py-1 ml-2 rounded ${
+                        currentUser.Role === "manager"
+                          ? "bg-red-500 text-white hover:bg-red-600"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
                       Delete
                     </button>
