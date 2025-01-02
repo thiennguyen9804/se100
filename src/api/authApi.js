@@ -18,5 +18,6 @@ export const login = async ({ email, password }) => {
 		throw Error('Người dùng không tồn tại')
 	}
 	const user = querySnapshot.docs.map((doc) => doc.data())[0]
-	return user
+	// console.log("🚀 ~ login ~ user:", user)
+	return {...user, isLoggedIn: true}
 }
