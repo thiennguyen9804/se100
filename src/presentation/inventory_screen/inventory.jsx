@@ -14,23 +14,23 @@ function convertTimestampToDate(timestamp) {
 
 // Lưu chỉnh sửa
 const saveEdit = async (updatedProduct, setEditProduct, refetch) => {
-  if (!updatedProduct) return;
+ if (!updatedProduct) return;
 
-  // Thêm trường UpdateTime với giá trị thời gian hiện tại
-  const updatedData = {
-    ...updatedProduct,
-    UpdateTime: Timestamp.now(), // Thời gian hiện tại
-  };
+ // Thêm trường UpdateTime với giá trị thời gian hiện tại
+ const updatedData = {
+  ...updatedProduct,
+  UpdateTime: Timestamp.now(), // Thời gian hiện tại
+ };
 
-  try {
-    await updateInventory(updatedProduct.id, updatedData);
-    setEditProduct(null);
-    refetch(); // Refresh dữ liệu
-    alert("Product updated successfully!");
-  } catch (error) {
-    alert("Failed to update product. Please try again.");
-    console.error("Error updating product:", error);
-  }
+ try {
+  await updateInventory(updatedProduct.id, updatedData);
+  setEditProduct(null);
+  refetch(); 
+  alert("Product updated successfully!");
+ } catch (error) {
+  alert("Failed to update product. Please try again.");
+  console.error("Error updating product:", error);
+ }
 };
 
 // Xác nhận xóa

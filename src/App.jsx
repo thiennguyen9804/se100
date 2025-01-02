@@ -1,14 +1,13 @@
 import Sidebar from "./presentation/components/SideBar";
 import Topbar from "./presentation/components/TopBar";
-import InboundReceiptScreen from "./presentation/inbound_screen/inbound";
 import { useState } from "react";
 import { Routes, Route } from "react-router";
 import StaffScreen from "./presentation/staff_screen/StaffScreen";
 import SupplierScreen from "./presentation/supplier_screen/SupplierScreen";
-import { Inventory } from "@mui/icons-material";
 import InventoryScreen from "./presentation/inventory_screen/inventory";
 import CustomerScreen from "./presentation/customer_screen/CustomerScreen";
 import OutboundReceiptScreen from "./presentation/outbound_screen/outbound";
+import InboundReceiptScreen from "./presentation/inbound_screen/inbound";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state

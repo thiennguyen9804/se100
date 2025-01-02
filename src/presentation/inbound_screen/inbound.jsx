@@ -1,147 +1,311 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  TextField,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
-import { Edit, Delete, Visibility, Print } from "@mui/icons-material";
+  collection,
+  getDocs,
+  Timestamp,
+  updateDoc,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../../core/utils/firebase"; 
+import EditInboundReceiptModal from "./edit_modal";
+import { updateInbound, deleteInbound, addNewInbound } from "../../api/inboundApi";
+import DeleteInboundReceiptModal from "./delete_modal";
+import ViewInboundModal from "./view_modal";
+import AddInboundReceiptModal from "./add_modal";
 
-const Inbound = ({ isSidebarOpen }) => {
-  const [searchWord, setSearchWord] = useState("");
+// Chuyển đổi Timestamp thành Date
+function convertTimestampToDate(timestamp) {
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toDate().toLocaleString();
+  }
+  return timestamp;
+}
 
-  const data = [
-    {
-      asnCode: "ASN202412251",
-      asnStatus: "Pre Delivery",
-      totalWeight: 18.031,
-      totalVolume: 0.0919,
-      supplierName: "Supplier Name-1",
-      creater: "GreaterWMS",
-      createTime: "2024-12-25 15:28:24",
-      updateTime: "December 24, 2024 at 9:56:43 PM UTC+7",
-    },
-    {
-      asnCode: "ASN202412233",
-      asnStatus: "Pre Load",
-      totalWeight: 50.657,
-      totalVolume: 0.0747,
-      supplierName: "Supplier Name-10",
-      creater: "GreaterWMS",
-      createTime: "2024-12-23 20:58:25",
-      updateTime: "December 24, 2024 at 9:56:43 PM UTC+7",
-    },
-    {
-      asnCode: "ASN202412231",
-      asnStatus: "Sorting",
-      totalWeight: 8.914,
-      totalVolume: 0.0847,
-      supplierName: "Supplier Name-1",
-      creater: "GreaterWMS",
-      createTime: "2024-12-23 20:57:03",
-      updateTime: "December 24, 2024 at 9:56:43 PM UTC+7",
-    },
-  ];
+// Lưu chỉnh sửa
+const saveEdit = async (updatedInboundReceipt, setEditInboundReceipt, refetch) => {
+  if (!updatedInboundReceipt) return;
 
-  const filteredData = data.filter((item) =>
-    Object.values(item).some((value) =>
-      value.toString().toLowerCase().includes(searchWord.toLowerCase())
-    )
-  );
+  // Thêm trường UpdateTime với giá trị thời gian hiện tại
+  const updatedData = {
+    StaffID: updatedInboundReceipt.StaffID,
+    SupplierID: updatedInboundReceipt.SupplierID,
+    UpdateTime: Timestamp.now(), // Thời gian hiện tại
+  };
+
+  try {
+    await updateInbound(updatedInboundReceipt.id, updatedData); 
+    setEditInboundReceipt(null);
+    refetch();
+    alert("Inbound Receipt updated successfully!");
+  } catch (error) {
+    alert("Failed to update Inbound Receipt. Please try again.");
+    console.error("Error updating Inbound Receipt:", error);
+  }
+};
+
+// Xác nhận xóa
+const confirmDelete = async (
+  deleteInboundReceipt,
+  setDeleteInboundReceipt,
+  refetch,
+) => {
+  if (!deleteInboundReceipt) return;
+  try {
+    await deleteInbound(deleteInboundReceipt.id);
+    setDeleteInboundReceipt(null);
+    refetch();
+    alert("Inbound Receipt deleted successfully!");
+  } catch (error) {
+    alert("Failed to delete Inbound Receipt. Please try again.");
+    console.error("Error deleting Inbound Receipt:", error);
+  }
+};
+
+// Tải thông tin lên listview
+const useInbound = () => {
+  const [inboundReceipts, setInboundReceipts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refetch = async () => {
+    setIsLoading(true);
+    try {
+      const inboundReceiptCollection = collection(db, "InboundReceipt");
+      const staffCollection = collection(db, "Staff");
+      const supplierCollection = collection(db, "Supplier");
+
+      // Lấy dữ liệu từ các collection
+      const inboundReceiptSnapshot = await getDocs(inboundReceiptCollection);
+      const staffSnapshot = await getDocs(staffCollection);
+      const supplierSnapshot = await getDocs(supplierCollection);
+
+      // Chuyển đổi dữ liệu Staff và Supplier thành dạng key-value
+      const staffs = {};
+      staffSnapshot.forEach((doc) => {
+        staffs[doc.data().id] = doc.data().Name;
+      });
+
+      const suppliers = {};
+      supplierSnapshot.forEach((doc) => {
+        suppliers[doc.data().id] = doc.data().Name;
+      });
+
+      // Xử lý dữ liệu InboundReceipt
+      const inboundReceiptList = inboundReceiptSnapshot.docs.map((doc) => {
+        const data = doc.data();
+
+        return {
+          id: doc.id,
+          ...data,
+          StaffName: staffs[data.StaffID] || "N/A", // Lấy StaffName
+          SupplierName: suppliers[data.SupplierID] || "N/A", // Lấy SupplierName
+        };
+      });
+
+      setInboundReceipts(inboundReceiptList);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  return { inboundReceipts, isLoading, refetch };
+};
+
+const InboundReceiptScreen = ({ isSidebarOpen }) => {
+  const { inboundReceipts, isLoading, refetch } = useInbound();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [editInboundReceipt, setEditInboundReceipt] = useState(null);
+  const [deleteInboundReceipt, setDeleteInboundReceipt] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedInboundId, setSelectedInboundId] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Thêm state để điều khiển modal
+
+  // Lọc Inbound Receipt theo từ khóa tìm kiếm
+  const filteredInboundReceipts = inboundReceipts?.filter((item) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.id?.toLowerCase().includes(searchLower) ||
+      item.StaffName?.toLowerCase().includes(searchLower) ||
+      item.SupplierName?.toLowerCase().includes(searchLower) ||
+      (item.CreateTime &&
+        convertTimestampToDate(item.CreateTime)
+          .toLowerCase()
+          .includes(searchLower)) ||
+      (item.UpdateTime &&
+        convertTimestampToDate(item.UpdateTime)
+          .toLowerCase()
+          .includes(searchLower))
+    );
+  });
+
+  const handleViewClick = (id) => {
+    setSelectedInboundId(id); // Lưu ID inbound được chọn
+    setIsViewModalOpen(true); // Hiển thị modal
+  };
+
+  const handleAddNewClick = () => {
+    setIsAddModalOpen(true); // Mở modal khi nhấn "NEW"
+  };
+
+  const closeAddModal = () => {
+    setIsAddModalOpen(false); // Đóng modal
+  };
+
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedInboundId(null); // Reset ID khi đóng modal
+  };
+
+  const handleAddNewInbound = async (newInboundData) => {
+    try {
+      await addNewInbound(newInboundData, refetch);
+      closeAddModal(); // Đóng modal sau khi thêm mới
+    } catch (error) {
+      console.error("Error adding inbound receipt:", error);
+    }
+  };
 
   return (
-    <div style={{ display: "grid", height: "calc(100vh - 96px)" }}>
-      <div style={{ overflowX: "auto", height: "100%" }}>
-        {/* Thanh công cụ */}
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <Button variant="contained" color="primary">
-              + NEW
-            </Button>
-            <Button variant="outlined" color="primary" className="ml-2">
-              REFRESH
-            </Button>
-          </div>
-          <TextField
-            label="Search Word"
-            variant="outlined"
-            size="small"
-            value={searchWord}
-            onChange={(e) => setSearchWord(e.target.value)}
-            InputProps={{
-              endAdornment: <IconButton>{/* thêm icon search ở đây */}</IconButton>,
+    <div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
+      <div className="flex justify-between items-center mb-4">
+        {/* Buttons */}
+        <div className="space-x-2">
+          <button
+            onClick={handleAddNewClick}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          >
+            NEW
+          </button>
+          <button
+            onClick={() => {
+              refetch(); 
             }}
+            className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
+          >
+            REFRESH
+          </button>
+        </div>
+        {/* Search Bar */}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search Word"
+            className="border border-gray-300 rounded-md px-4 py-2 w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        {/* Bảng dữ liệu */}
-        <TableContainer component={Paper} style={{ height: "calc(100% - 48px)" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>ASN Code</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>ASN Status</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Total Weight (Unit: KG)</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Total Volume (Unit: Cubic Metres)</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Supplier Name</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Creater</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Create Time</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Update Time</TableCell> 
-                <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredData.map((row) => (
-                <TableRow key={row.asnCode}>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.asnCode}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.asnStatus}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.totalWeight}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.totalVolume}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.supplierName}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.creater}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.createTime}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>{row.updateTime}</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap", borderRight: "1px solid #ccc" }}>
-                  <div className="flex">
-                    <Tooltip title="View">
-                      <IconButton>
-                        <Visibility />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit">
-                      <IconButton>
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Print">
-                      <IconButton>
-                        <Print />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <IconButton>
-                        <Delete />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {filteredData.length === 0 && <div className="text-center mt-4">NO MORE DATA</div>}
       </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100 text-left text-black">
+              <th className="border border-gray-300 px-4 py-2">Inbound ID</th>
+              <th className="border border-gray-300 px-4 py-2">Staff Name</th>
+              <th className="border border-gray-300 px-4 py-2">Supplier Name</th>
+              <th className="border border-gray-300 px-4 py-2">Create Time</th>
+              <th className="border border-gray-300 px-4 py-2">Update Time</th>
+              <th className="border border-gray-300 px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr className="text-gray-600">
+                <td className="border border-gray-300 px-4 py-2" colSpan={10}>
+                  Loading...
+                </td>
+              </tr>
+            ) : filteredInboundReceipts?.length > 0 ? (
+              filteredInboundReceipts.map((item, index) => (
+                <tr key={index} className="text-black">
+                  <td className="border border-gray-300 px-4 py-2">
+                    {item.id}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {item.StaffName}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {item.SupplierName}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {item.CreateTime
+                      ? convertTimestampToDate(item.CreateTime)
+                      : "N/A"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {item.UpdateTime
+                      ? convertTimestampToDate(item.UpdateTime)
+                      : "N/A"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 flex">
+                    <button
+                      onClick={() => handleViewClick(item.id)}
+                      className="bg-blue-500 text-white px-2 py-1 rounded"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => setEditInboundReceipt(item)}
+                      className="bg-blue-500 text-white px-2 py-1 ml-2 rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setDeleteInboundReceipt(item)}
+                      className="bg-red-500 text-white px-2 py-1 ml-2 rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr className="text-gray-600">
+                <td className="border border-gray-300 px-4 py-2" colSpan={10}>
+                  NO MORE DATA
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modals */}
+      {editInboundReceipt && (
+        <EditInboundReceiptModal
+          inboundReceipt={editInboundReceipt}
+          onSave={(updatedInboundReceipt) => saveEdit(updatedInboundReceipt, setEditInboundReceipt, refetch)} 
+          onCancel={() => setEditInboundReceipt(null)}
+        />
+      )}
+      {deleteInboundReceipt && (
+        <DeleteInboundReceiptModal
+          onConfirm={() => confirmDelete(deleteInboundReceipt, setDeleteInboundReceipt, refetch)}
+          onCancel={() => setDeleteInboundReceipt(null)}
+        />
+      )}
+      {isViewModalOpen && (
+        <ViewInboundModal
+          inboundId={selectedInboundId}
+          closeModal={closeViewModal}
+        />
+      )}
+      {isAddModalOpen && (
+        <AddInboundReceiptModal
+          onAddNew={(newInboundData) => handleAddNewInbound(newInboundData)}
+          onCancel={closeAddModal}        // Hàm đóng modal
+        />
+      )}
     </div>
   );
 };
 
-export default Inbound;
+export default InboundReceiptScreen;
