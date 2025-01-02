@@ -1,19 +1,50 @@
 import React from "react";
 import { Link } from "react-router"; // Sử dụng react-router-dom
+import { useAuth } from "../../hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { roles } from "../../core/utils/constants";
+
 
 const Sidebar = ({ isSidebarOpen }) => {
-  // Nhận state từ App.jsx
-  const navigation = [
-    { name: "Inbound", icon: "📥", path: "/inbound" },
-    { name: "Outbound", icon: "📤", path: "/outbound" },
-    <hr key="hr1" />, // Thêm key cho các phần tử <hr />
-    { name: "Inventory", icon: "📦", path: "/inventory" },
-    <hr key="hr2" />,
-    { name: "Staff", icon: "👤", path: "/staff" },
-    <hr key="hr3" />,
-    { name: "Supplier", icon: "👨‍🌾", path: "/supplier" },
-    { name: "Customer", icon: "🤵", path: "/customer" },
+  // Lấy thông tin user, phải đăng nhập trước khi lấylấy
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    enabled: false
+  });
+  console.log("🚀 ~ Sidebar ~ currentUser:", currentUser)
+  
+  let navigation
+  if(!currentUser) {
+    return;
+  }
+  // Truy cập tới các thuộc tính của user
+  if(currentUser.Role === roles[0].value) {
+    navigation = [
+      { name: "Staff", icon: "👤", path: "/staff" },
+    ];
+  } else if(currentUser.Role === roles[1].value || currentUser.Role === roles[2].value) {
+    navigation = [
+      { name: "Inbound", icon: "📥", path: "/warehouse" },
+      { name: "Outbound", icon: "📤", path: "/warehouse/outbound" },
+      <hr key="hr1" />, // Thêm key cho các phần tử <hr />
+      { name: "Inventory", icon: "📦", path: "/warehouse/inventory" },
+      <hr key="hr2" />,
+      { name: "Supplier", icon: "👨‍🌾", path: "/warehouse/supplier" },
+      { name: "Customer", icon: "🤵", path: "/warehouse/customer" },
   ];
+
+  }
+  // navigation = [
+  //   { name: "Inbound", icon: "📥", path: "/warehouse" },
+  //   { name: "Outbound", icon: "📤", path: "/warehouse/outbound" },
+  //   <hr key="hr1" />, // Thêm key cho các phần tử <hr />
+  //   { name: "Inventory", icon: "📦", path: "/warehouse/inventory" },
+  //   <hr key="hr2" />,
+  //   { name: "Staff", icon: "👤", path: "/staff" },
+  //   <hr key="hr3" />,
+  //   { name: "Supplier", icon: "👨‍🌾", path: "/warehouse/supplier" },
+  //   { name: "Customer", icon: "🤵", path: "/warehouse/customer" },
+  // ];
 
   return (
     <div

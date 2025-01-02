@@ -2,20 +2,26 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "../api/authApi";
 import { useNavigate } from "react-router";
 import { roles } from "../core/utils/constants";
+import { useState } from "react";
 
 export const useAuth = () => {
-	// const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
+
+	const [userData, setUserData] = useState(null);
 	const navigate = useNavigate();
-	
-	const {mutate, data, } = useMutation({
+
+	const { mutate } = useMutation({
 		mutationFn: login,
 		onSuccess: (data) => {
-			if(data.role === roles[0].value)
-				navigate("/staff")
+			setUserData(data)
+			queryClient.setQueryData(["currentUser"], data)
+			
+			navigate("/staff")
 		},
 		onError: error => alert(error.message),
 	})
 
+	// console.log("🚀 ~ useAuth ~ data:", data)
 
-	return { mutate, data, }
+	return { mutate, userData, }
 }

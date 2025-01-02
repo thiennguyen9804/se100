@@ -10,6 +10,7 @@ import InventoryScreen from "./presentation/inventory_screen/inventory";
 import CustomerScreen from "./presentation/customer_screen/CustomerScreen";
 import ProtectedRoute from "./core/presentation/ProtectedRoute";
 import OutboundReceiptScreen from "./presentation/outbound_screen/outbound";
+import {LoginScreen} from './presentation/auth_screen'
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state
@@ -35,14 +36,14 @@ function App() {
             {/* Thêm overflow-y-auto */}
             {
               <Routes>
-                <Route path="/login" element={<LoginScreen />}/>
-                <Route path="/" element={<InventoryScreen />} />
-                <Route path="/inbound" element={<InboundReceiptScreen />} />
-                <Route path="/outbound" element={<OutboundReceiptScreen />} />
-                <Route path="/inventory" element={<InventoryScreen />} />
+                <Route path="/" element={<LoginScreen />}/>
+                {/* <Route path="/" element={<InventoryScreen />} /> */}
+                <Route path="/warehouse/" element={<InboundReceiptScreen />} />
+                <Route path="/warehouse/outbound" element={<OutboundReceiptScreen />} />
+                <Route path="/warehouse/inventory" element={<InventoryScreen />} />
                 <Route path="/staff" element={<StaffScreen />} />
-                <Route path="/supplier" element={<SupplierScreen />} />
-                <Route path="/customer" element={<CustomerScreen />} />
+                <Route path="/warehouse/supplier" element={<SupplierScreen />} />
+                <Route path="/warehouse/customer" element={<CustomerScreen />} />
               </Routes>
             }
             {/* <StaffScreen /> */}
