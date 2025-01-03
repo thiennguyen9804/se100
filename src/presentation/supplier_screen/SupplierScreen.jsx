@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useSupplier } from "../../hooks/useSupplier";
 import { Timestamp } from "firebase/firestore";
-import { updateSupplier, deleteSupplier } from "../../api/supplierApi";
+import { updateSupplier, deleteSupplier} from "../../api/supplierApi";
 import EditModal from "./edit_modal";
 import DeleteModal from "./delete_modal";
+import AddModal from "./add_modal";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -33,6 +34,7 @@ const saveEdit = async (updatedSupplier, setEditSupplier, refetch) => {
   }
 };
 
+
 // Xác nhận xóa
 const confirmDelete = async (deleteSupplierID, setDeleteSupplierID, refetch) => {
   if (!deleteSupplierID) return;
@@ -52,6 +54,7 @@ const SupplierScreen = ({ isSidebarOpen }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editSupplier, setEditSupplier] = useState(null);
   const [deleteSupplierID, setDeleteSupplierID] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Lọc sản phẩm theo từ khóa tìm kiếm
   const filteredInventory = supplierList?.filter((item) => {
@@ -59,7 +62,6 @@ const SupplierScreen = ({ isSidebarOpen }) => {
 
     // Kiểm tra từng thuộc tính của sản phẩm
     return (
-      item.id?.toLowerCase().includes(searchLower) ||
       item.Name?.toLowerCase().includes(searchLower) ||
       item.Contact?.toLowerCase().includes(searchLower) ||
       item.Location?.toLowerCase().includes(searchLower) ||
@@ -74,6 +76,11 @@ const SupplierScreen = ({ isSidebarOpen }) => {
     );
   });
 
+  const onAddClick = () => {
+    setIsAddModalOpen(true)
+  }
+
+
   return (
     <div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
@@ -81,13 +88,18 @@ const SupplierScreen = ({ isSidebarOpen }) => {
         {/* Buttons */}
         <div className="space-x-2">
           <button
+            onClick={onAddClick}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            + NEW
+          </button>
+          <button
             onClick={refetch} // Gọi refetch khi bấm Refresh
             className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
           >
             REFRESH
           </button>
         </div>
-        
+
         {/* Search Bar */}
         <div className="relative">
           <input
@@ -106,7 +118,7 @@ const SupplierScreen = ({ isSidebarOpen }) => {
           <thead>
             <tr className="bg-gray-100 text-left text-black">
               <th className="border border-gray-300 px-4 py-2">Supplier Name</th>
-			        <th className="border border-gray-300 px-4 py-2">Contact</th>
+              <th className="border border-gray-300 px-4 py-2">Contact</th>
               <th className="border border-gray-300 px-4 py-2">Location</th>
               <th className="border border-gray-300 px-4 py-2">Create Time</th>
               <th className="border border-gray-300 px-4 py-2">Update Time</th>
@@ -127,7 +139,7 @@ const SupplierScreen = ({ isSidebarOpen }) => {
                     {item.Name}
                   </td>
 
-				          <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-4 py-2">
                     {item.Contact}
                   </td>
 
@@ -149,13 +161,13 @@ const SupplierScreen = ({ isSidebarOpen }) => {
 
                   <td className="border border-gray-300 px-4 py-2 flex">
                     <button
-                      onClick={() => setEditSupplier(item)} 
+                      onClick={() => setEditSupplier(item)}
                       className="bg-blue-500 text-white px-2 py-1 rounded"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => setDeleteSupplierID(item.id)} 
+                      onClick={() => setDeleteSupplierID(item.id)}
                       className="bg-red-500 text-white px-2 py-1 ml-2 rounded"
                     >
                       Delete
@@ -181,7 +193,7 @@ const SupplierScreen = ({ isSidebarOpen }) => {
           onSave={(updatedSupplier) =>
             saveEdit(updatedSupplier, setEditSupplier, refetch)
           }
-          onCancel={() => setEditSupplier(null)} 
+          onCancel={() => setEditSupplier(null)}
         />
       )}
       {deleteSupplierID && (
@@ -189,7 +201,13 @@ const SupplierScreen = ({ isSidebarOpen }) => {
           onConfirm={() =>
             confirmDelete(deleteSupplierID, setDeleteSupplierID, refetch)
           }
-          onCancel={() => setDeleteSupplierID(null)} 
+          onCancel={() => setDeleteSupplierID(null)}
+        />
+      )}
+      {isAddModalOpen && (
+        <AddModal
+        setModalState={setIsAddModalOpen}
+        refetchMethod={refetch}
         />
       )}
     </div>

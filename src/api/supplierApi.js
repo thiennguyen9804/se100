@@ -21,9 +21,11 @@ export const getAllSupplier = async () => {
 };
 
 // Cập nhật dữ liệu
+
 export const updateSupplier = async (supplierID, updatedData) => {
+  const docRef = doc(db, "Supplier", supplierID);
   try {
-    await updateDoc(doc(db, "Supplier", supplierID), updatedData);
+    await updateDoc(docRef, updatedData);
     console.log("Data updated successfully!");
   } catch (error) {
     console.error("Error updating data:", error);

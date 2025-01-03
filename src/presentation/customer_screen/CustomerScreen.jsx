@@ -4,6 +4,7 @@ import { Timestamp } from "firebase/firestore";
 import { updateCustomer, deleteCustomer } from "../../api/customerApi";
 import EditModal from "./edit_modal";
 import DeleteModal from "./delete_modal";
+import AddModal from "./add_modal";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -52,6 +53,7 @@ const CustomerScreen = ({ isSidebarOpen }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editCustomer, setEditCustomer] = useState(null);
   const [deleteCustomerID, setDeleteCustomerID] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Lọc sản phẩm theo từ khóa tìm kiếm
   const filteredInventory = CustomerList?.filter((item) => {
@@ -74,12 +76,22 @@ const CustomerScreen = ({ isSidebarOpen }) => {
     );
   });
 
+  const onAddClick = () => {
+    setIsAddModalOpen(true)
+  }
+
   return (
     <div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
 
         {/* Buttons */}
         <div className="space-x-2">
+          <button
+            onClick={onAddClick}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            + NEW
+          </button>
+
           <button
             onClick={refetch}
             className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
@@ -107,7 +119,7 @@ const CustomerScreen = ({ isSidebarOpen }) => {
           <thead>
             <tr className="bg-gray-100 text-left text-black">
               <th className="border border-gray-300 px-4 py-2">Customer Name</th>
-			        <th className="border border-gray-300 px-4 py-2">Contact</th>
+              <th className="border border-gray-300 px-4 py-2">Contact</th>
               <th className="border border-gray-300 px-4 py-2">Location</th>
               <th className="border border-gray-300 px-4 py-2">Create Time</th>
               <th className="border border-gray-300 px-4 py-2">Update Time</th>
@@ -127,7 +139,7 @@ const CustomerScreen = ({ isSidebarOpen }) => {
                   <td className="border border-gray-300 px-4 py-2">
                     {item.Name}
                   </td>
-				  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-4 py-2">
                     {item.Contact}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
@@ -186,6 +198,12 @@ const CustomerScreen = ({ isSidebarOpen }) => {
             confirmDelete(deleteCustomerID, setDeleteCustomerID, refetch)
           }
           onCancel={() => setDeleteCustomerID(null)}
+        />
+      )}
+      {isAddModalOpen && (
+        <AddModal
+        setModalState={setIsAddModalOpen}
+        refetchMethod={refetch}
         />
       )}
     </div>
