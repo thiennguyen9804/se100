@@ -5,6 +5,7 @@ import { updateCustomer, deleteCustomer } from "../../api/customerApi";
 import EditModal from "./edit_modal";
 import DeleteModal from "./delete_modal";
 import AddModal from "./add_modal";
+import { useQuery } from "@tanstack/react-query";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -49,6 +50,9 @@ const confirmDelete = async (deleteCustomerID, setDeleteCustomerID, refetch) => 
 };
 
 const CustomerScreen = ({ isSidebarOpen }) => {
+  const { data: currentUser } = useQuery({
+		queryKey: ["currentUser"],
+		enalble: false,});
   const { data: CustomerList, isLoading, refetch } = useCustomer();
   const [searchTerm, setSearchTerm] = useState("");
   const [editCustomer, setEditCustomer] = useState(null);
@@ -86,11 +90,13 @@ const CustomerScreen = ({ isSidebarOpen }) => {
 
         {/* Buttons */}
         <div className="space-x-2">
+        {currentUser.Role === "manager" && (
           <button
             onClick={onAddClick}
             className="bg-blue-500 text-white px-4 py-2 rounded-md">
             + NEW
           </button>
+        )}
 
           <button
             onClick={refetch}
@@ -155,6 +161,7 @@ const CustomerScreen = ({ isSidebarOpen }) => {
                       ? convertTimestampToDate(item.UpdateTime)
                       : "N/A"}
                   </td>
+                  {currentUser.Role === "manager" && (
                   <td className="border border-gray-300 px-4 py-2 flex">
                     <button
                       onClick={() => setEditCustomer(item)}
@@ -168,7 +175,7 @@ const CustomerScreen = ({ isSidebarOpen }) => {
                     >
                       Delete
                     </button>
-                  </td>
+                  </td>)}
                 </tr>
               ))
             ) : (

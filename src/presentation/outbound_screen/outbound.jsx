@@ -8,8 +8,9 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "../../core/utils/firebase"; // Nhớ import cấu hình Firebase
-// import EditModal from "./edit_modal"; // Giả sử bạn có sẵn các component này
-// import DeleteModal from "./delete_modal";
+import EditModal from "./edit_modal"; // Giả sử bạn có sẵn các component này
+import DeleteModal from "./delete_modal";
+import { useQuery } from "@tanstack/react-query";
 
 // Chuyển đổi Timestamp thành Date
 function convertTimestampToDate(timestamp) {
@@ -117,6 +118,9 @@ const confirmDelete = async (
 };
 
 const OutboundReceiptScreen = ({ isSidebarOpen }) => {
+  const { data: currentUser } = useQuery({
+      queryKey: ["currentUser"],
+      enalble: false,});
   const { OutboundReceipts, isLoading } = useOutboundReceipts();
   const [searchTerm, setSearchTerm] = useState("");
   const [editOutboundReceipt, setEditOutboundReceipt] = useState(null);
@@ -147,17 +151,16 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
       <div className="flex justify-between items-center mb-4">
         {/* Buttons */}
         <div className="space-x-2">
+        {currentUser.Role === "manager" && (
           <button
             onClick={() => {
-              // Thêm logic cho nút +New tại đây
             }}
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
           >
             NEW
-          </button>
+          </button>)}
           <button
             onClick={() => {
-              // Thêm logic refresh tại đây
             }}
             className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
           >
@@ -218,6 +221,7 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
                       ? convertTimestampToDate(item.UpdateTime)
                       : "N/A"}
                   </td>
+                  {currentUser.Role === "manager" && (
                   <td className="border border-gray-300 px-4 py-2 flex">
                     <button
                       onClick={() => setEditOutboundReceipt(item)}
@@ -231,7 +235,7 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
                     >
                       Delete
                     </button>
-                  </td>
+                  </td>)}
                 </tr>
               ))
             ) : (

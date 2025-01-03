@@ -13,6 +13,7 @@ import { updateInbound, deleteInbound, addNewInbound } from "../../api/inboundAp
 import DeleteInboundReceiptModal from "./delete_modal";
 import ViewInboundModal from "./view_modal";
 import AddInboundReceiptModal from "./add_modal";
+import { useQuery } from "@tanstack/react-query";
 
 // Chuyển đổi Timestamp thành Date
 function convertTimestampToDate(timestamp) {
@@ -118,6 +119,9 @@ const useInbound = () => {
 };
 
 const InboundReceiptScreen = ({ isSidebarOpen }) => {
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    enalble: false,});
   const { inboundReceipts, isLoading, refetch } = useInbound();
   const [searchTerm, setSearchTerm] = useState("");
   const [editInboundReceipt, setEditInboundReceipt] = useState(null);
@@ -252,18 +256,22 @@ const InboundReceiptScreen = ({ isSidebarOpen }) => {
                     >
                       View
                     </button>
-                    <button
-                      onClick={() => setEditInboundReceipt(item)}
-                      className="bg-blue-500 text-white px-2 py-1 ml-2 rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setDeleteInboundReceipt(item)}
-                      className="bg-red-500 text-white px-2 py-1 ml-2 rounded"
-                    >
-                      Delete
-                    </button>
+                    {currentUser.Role !== "employee" && (
+                      <>
+                        <button
+                          onClick={() => setEditInboundReceipt(item)}
+                          className="bg-blue-500 text-white px-2 py-1 ml-2 rounded"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setDeleteInboundReceipt(item)}
+                          className="bg-red-500 text-white px-2 py-1 ml-2 rounded"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))

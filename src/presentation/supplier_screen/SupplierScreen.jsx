@@ -5,6 +5,7 @@ import { updateSupplier, deleteSupplier} from "../../api/supplierApi";
 import EditModal from "./edit_modal";
 import DeleteModal from "./delete_modal";
 import AddModal from "./add_modal";
+import { useQuery } from "@tanstack/react-query";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -50,6 +51,9 @@ const confirmDelete = async (deleteSupplierID, setDeleteSupplierID, refetch) => 
 };
 
 const SupplierScreen = ({ isSidebarOpen }) => {
+  const { data: currentUser } = useQuery({
+		queryKey: ["currentUser"],
+		enalble: false,});
   const { data: supplierList, isLoading, refetch } = useSupplier();
   const [searchTerm, setSearchTerm] = useState("");
   const [editSupplier, setEditSupplier] = useState(null);
@@ -87,11 +91,12 @@ const SupplierScreen = ({ isSidebarOpen }) => {
 
         {/* Buttons */}
         <div className="space-x-2">
+        {currentUser.Role === "manager" && (
           <button
             onClick={onAddClick}
             className="bg-blue-500 text-white px-4 py-2 rounded-md">
             + NEW
-          </button>
+          </button>)}
           <button
             onClick={refetch} // Gọi refetch khi bấm Refresh
             className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
@@ -158,7 +163,7 @@ const SupplierScreen = ({ isSidebarOpen }) => {
                       ? convertTimestampToDate(item.UpdateTime)
                       : "N/A"}
                   </td>
-
+                  {currentUser.Role === "manager" && (
                   <td className="border border-gray-300 px-4 py-2 flex">
                     <button
                       onClick={() => setEditSupplier(item)}
@@ -172,7 +177,7 @@ const SupplierScreen = ({ isSidebarOpen }) => {
                     >
                       Delete
                     </button>
-                  </td>
+                  </td>)}
                 </tr>
               ))
             ) : (
