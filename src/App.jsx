@@ -10,6 +10,7 @@ import ProtectedRoute from "./core/presentation/ProtectedRoute";
 import InboundReceiptScreen from "./presentation/inbound_screen/inbound";
 import OutboundReceiptScreen from "./presentation/outbound_screen/outbound";
 import { LoginScreen } from "./presentation/auth_screen";
+import StatisticalScreen from "./presentation/statistical_screen/StatisticalScreen";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Khai báo state
@@ -53,6 +54,10 @@ function App() {
                 <Route
                   path="/warehouse/customer"
                   element={<CustomerScreen />}
+                />
+                <Route
+                  path="/warehouse/statistical"
+                  element={<StatisticalScreen />}
                 />
               </Routes>
             }

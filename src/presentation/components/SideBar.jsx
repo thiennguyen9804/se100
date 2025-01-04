@@ -29,6 +29,8 @@ const Sidebar = ({ isSidebarOpen }) => {
       <hr key="hr2" />,
       { name: "Supplier", icon: "👨‍🌾", path: "/warehouse/supplier" },
       { name: "Customer", icon: "🤵", path: "/warehouse/customer" },
+      <hr key="hr3" />,
+      { name: "Statistical", icon: "📊", path: "/warehouse/statistical" },
     ];
   }
 
