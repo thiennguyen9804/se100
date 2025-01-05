@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../core/utils/firebase";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { updateInbound } from "../../api/inboundApi";
 
 const EditInboundReceiptModal = ({ inboundReceipt, onSave, onCancel }) => {
@@ -22,7 +22,7 @@ const EditInboundReceiptModal = ({ inboundReceipt, onSave, onCancel }) => {
         const supplierSnapshot = await getDocs(supplierCollection);
 
         const staffList = staffSnapshot.docs.map((doc) => ({
-          id: doc.data().id, // Sử dụng StaffID làm key
+          id: doc.id, // Sử dụng StaffID làm key
           Name: doc.data().Name,
         }));
         setStaffs(staffList);
@@ -75,7 +75,7 @@ const EditInboundReceiptModal = ({ inboundReceipt, onSave, onCancel }) => {
             onChange={(e) => handleChange("StaffID", e.target.value)}
             className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
           >
-            <option value="">{inboundReceiptData.StaffName || "Select Staff"}</option> {/* Hiển thị Staff Name hiện tại */}
+            <option value="">{inboundReceiptData.StaffName || "Select Staff"}</option> 
     {staffs.map((staff) => (
       <option key={staff.id} value={staff.id}>
         {staff.Name}
@@ -91,7 +91,7 @@ const EditInboundReceiptModal = ({ inboundReceipt, onSave, onCancel }) => {
             onChange={(e) => handleChange("SupplierID", e.target.value)}
             className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
           >
-            <option value="">{inboundReceiptData.SupplierName || "Select Supplier"}</option> {/* Hiển thị Staff Name hiện tại */}
+            <option value="">{inboundReceiptData.SupplierName || "Select Supplier"}</option> 
     {suppliers.map((supplier) => (
       <option key={supplier.id} value={supplier.id}>
         {supplier.Name}

@@ -56,7 +56,7 @@ const EditOutboundReceiptModal = ({ OutboundReceipt, onSave, onCancel }) => {
         SupplierID: OutboundReceiptData.SupplierID, // Gửi trực tiếp ID
       };
   
-      await updateoutbound(OutboundReceipt.id, updatedData); // Sử dụng API để cập nhật
+      await updateOutbound(OutboundReceipt.id, updatedData); // Sử dụng API để cập nhật
       onSave({ ...OutboundReceiptData });
     } catch (error) {
       console.error("Error updating outbound receipt:", error);
@@ -75,7 +75,7 @@ const EditOutboundReceiptModal = ({ OutboundReceipt, onSave, onCancel }) => {
             onChange={(e) => handleChange("StaffID", e.target.value)}
             className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
           >
-            <option value="">{OutboundReceiptData.StaffName || "Select Staff"}</option> {/* Hiển thị Staff Name hiện tại */}
+            <option value="">{OutboundReceiptData.StaffName || "Select Staff"}</option> 
     {staffs.map((staff) => (
       <option key={staff.id} value={staff.id}>
         {staff.Name}

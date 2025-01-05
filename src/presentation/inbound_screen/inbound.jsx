@@ -3,9 +3,6 @@ import {
   collection,
   getDocs,
   Timestamp,
-  updateDoc,
-  doc,
-  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../../core/utils/firebase"; 
 import EditInboundReceiptModal from "./edit_modal";
@@ -83,7 +80,7 @@ const useInbound = () => {
       // Chuyển đổi dữ liệu Staff và Supplier thành dạng key-value
       const staffs = {};
       staffSnapshot.forEach((doc) => {
-        staffs[doc.data().id] = doc.data().Name;
+        staffs[doc.id] = doc.data().Name;
       });
 
       const suppliers = {};

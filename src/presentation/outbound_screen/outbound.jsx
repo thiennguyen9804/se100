@@ -257,7 +257,7 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
             saveEdit(
               updatedOutboundReceipt,
               setEditOutboundReceipt,
-              // Thêm logic refresh tại đây
+              refetch
             )
           }
           onCancel={() => setEditOutboundReceipt(null)}
