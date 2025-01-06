@@ -2,6 +2,7 @@ import { getAllInventory } from "../../api/inventoryApi";
 import { Timestamp } from "firebase/firestore";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import InboundBarChart from "./components/inbound_statistical";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -48,6 +49,10 @@ const StatisticalScreen = () => {
       >
         Export Inventory Excel File
       </button>
+      <div style={{ marginTop: '50px' }}>
+        <InboundBarChart />
+      </div>
+
     </div>
   );
 };
