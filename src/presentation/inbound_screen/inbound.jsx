@@ -85,7 +85,7 @@ const useInbound = () => {
 
       const suppliers = {};
       supplierSnapshot.forEach((doc) => {
-        suppliers[doc.data().id] = doc.data().Name;
+        suppliers[doc.id] = doc.data().Name;
       });
 
       // Xử lý dữ liệu InboundReceipt

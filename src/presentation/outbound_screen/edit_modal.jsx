@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../core/utils/firebase";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { updateOutbound } from "../../api/outboundApi";
 
 const EditOutboundReceiptModal = ({ OutboundReceipt, onSave, onCancel }) => {
   const [OutboundReceiptData, setOutboundReceiptData] = useState(OutboundReceipt);
   const [staffs, setStaffs] = useState([]);
-  const [suppliers, setSuppliers] = useState([]);
+  const [customers, setCustomers] = useState([]);
 
   useEffect(() => {
+    console.log("Received OutboundReceipt:", OutboundReceipt);
     setOutboundReceiptData(OutboundReceipt);
   }, [OutboundReceipt]);
 
@@ -16,24 +17,24 @@ const EditOutboundReceiptModal = ({ OutboundReceipt, onSave, onCancel }) => {
     const fetchStaffsAndSuppliers = async () => {
       try {
         const staffCollection = collection(db, "Staff");
-        const supplierCollection = collection(db, "Supplier");
+        const customerCollection = collection(db, "Customer");
 
         const staffSnapshot = await getDocs(staffCollection);
-        const supplierSnapshot = await getDocs(supplierCollection);
+        const customerSnapshot = await getDocs(customerCollection);
 
         const staffList = staffSnapshot.docs.map((doc) => ({
-          id: doc.data().id, // Sử dụng StaffID làm key
+          id: doc.id, // Sử dụng StaffID làm key
           Name: doc.data().Name,
         }));
         setStaffs(staffList);
 
-        const supplierList = supplierSnapshot.docs.map((doc) => ({
-          id: doc.data().id, // Sử dụng SupplierID làm key
+        const customerList = customerSnapshot.docs.map((doc) => ({
+          id: doc.id, // Sử dụng CustomerID làm key
           Name: doc.data().Name,
         }));
-        setSuppliers(supplierList);
+        setCustomers(customerList);
       } catch (error) {
-        console.error("Error fetching staffs and suppliers:", error);
+        console.error("Error fetching staffs and customers:", error);
       }
     };
 
@@ -51,15 +52,29 @@ const EditOutboundReceiptModal = ({ OutboundReceipt, onSave, onCancel }) => {
 
   const handleSave = async () => {
     try {
+      if (!OutboundReceiptData.id) {
+        console.error("Outbound Receipt ID is missing.");
+        return;
+      }
+
       const updatedData = {
         StaffID: OutboundReceiptData.StaffID, // Gửi trực tiếp ID
-        SupplierID: OutboundReceiptData.SupplierID, // Gửi trực tiếp ID
+        CustomerID: OutboundReceiptData.CustomerID, // Gửi trực tiếp ID
       };
-  
-      await updateOutbound(OutboundReceipt.id, updatedData); // Sử dụng API để cập nhật
-      onSave({ ...OutboundReceiptData });
+
+      console.log("Data to be updated:", updatedData);
+
+      if (typeof updatedData !== "object" || Object.keys(updatedData).length === 0) {
+        console.error("Updated data is invalid.");
+        return;
+      }
+
+      // Sử dụng updateOutbound từ outboundApi để cập nhật
+      await updateOutbound(OutboundReceiptData.id, updatedData); // Gọi API với ID và dữ liệu
+      onSave(); // Sau khi cập nhật xong, gọi onSave để đóng modal hoặc refresh danh sách
+
     } catch (error) {
-      console.error("Error updating outbound receipt:", error);
+      console.error("Error saving outbound receipt:", error);
     }
   };
 
@@ -75,28 +90,27 @@ const EditOutboundReceiptModal = ({ OutboundReceipt, onSave, onCancel }) => {
             onChange={(e) => handleChange("StaffID", e.target.value)}
             className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
           >
-            <option value="">{OutboundReceiptData.StaffName || "Select Staff"}</option> 
-    {staffs.map((staff) => (
-      <option key={staff.id} value={staff.id}>
-        {staff.Name}
-      </option>
+            <option value="">{OutboundReceiptData.StaffName || "Select Staff"}</option>
+            {staffs.map((staff) => (
+              <option key={staff.id} value={staff.id}>
+                {staff.Name}
+              </option>
             ))}
           </select>
         </div>
 
-        {/* Supplier Name dropdown */}
+        {/* Customer Name dropdown */}
         <div>
           <select
-           value={OutboundReceiptData.SupplierID || ""}
-            onChange={(e) => handleChange("SupplierID", e.target.value)}
+            value={OutboundReceiptData.CustomerID || ""}
+            onChange={(e) => handleChange("CustomerID", e.target.value)}
             className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
           >
-            <option value="">{OutboundReceiptData.SupplierName || "Select Supplier"}</option> {/* Hiển thị Staff Name hiện tại */}
-    {suppliers.map((supplier) => (
-      <option key={supplier.id} value={supplier.id}>
-        {supplier.Name}
-        
-      </option>
+            <option value="">{OutboundReceiptData.CustomerName || "Select Customer"}</option> {/* Hiển thị Customer Name hiện tại */}
+            {customers.map((customer) => (
+              <option key={customer.id} value={customer.id}>
+                {customer.Name}
+              </option>
             ))}
           </select>
         </div>

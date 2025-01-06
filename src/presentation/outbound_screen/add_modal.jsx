@@ -14,14 +14,15 @@ const AddOutboundReceiptModal = () => {
   const [staffs, setStaffs] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [editingProductIndex, setEditingProductIndex] = useState(null); // Thêm state mới
   const [outboundReceiptData, setOutboundReceiptData] = useState({
     StaffID: "",
     CustomerID: "",
     ProductList: [],
   });
   const [newProduct, setNewProduct] = useState({
-    productId: "",
-    quantity: 0,
+    ProductID: "",
+    Quantity: 0,
   });
   const [productStock, setProductStock] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
@@ -48,7 +49,8 @@ const AddOutboundReceiptModal = () => {
         setInventory(
           inventorySnapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
+            name: doc.data().Name,
+            Quantity: doc.data().Quantity,
           }))
         );
       } catch (error) {
@@ -58,48 +60,83 @@ const AddOutboundReceiptModal = () => {
     fetchData();
   }, []);
 
-  // Update product stock on product selection
-  useEffect(() => {
-    const selectedProduct = inventory.find((item) => item.id === newProduct.productId);
-    setProductStock(selectedProduct ? selectedProduct.quantity : 0);
-  }, [newProduct.productId, inventory]);
+   // Update product stock on product selection
+   useEffect(() => {
+    const selectedProduct = inventory.find(item => item.id === newProduct.ProductID);
+    setProductStock(selectedProduct ? selectedProduct.Quantity : 0);
+  }, [newProduct.ProductID, inventory]);
 
   const handleAddProduct = () => {
-    if (!newProduct.productId || newProduct.quantity <= 0) {
+    if (!newProduct.ProductID || newProduct.Quantity <= 0) {
       alert("Please fill in all product fields.");
       return;
     }
 
-    if (newProduct.quantity > productStock) {
+    if (newProduct.Quantity > productStock) {
       setErrorMessage("Không được nhập quá số lượng hiện có");
       return;
     }
 
-    setOutboundReceiptData((prevState) => ({
-      ...prevState,
-      ProductList: [...prevState.ProductList, newProduct],
-    }));
-    setNewProduct({ productId: "", quantity: 0 });
+    if (editingProductIndex !== null) {  // Trường hợp chỉnh sửa
+      setOutboundReceiptData(prevState => {
+        const updatedProductList = [...prevState.ProductList];
+        updatedProductList[editingProductIndex] = { 
+          ProductID: newProduct.ProductID, 
+          Quantity: newProduct.Quantity 
+        };
+        return { ...prevState, ProductList: updatedProductList };
+      });
+      setEditingProductIndex(null); // Reset editingProductIndex
+    } else { // Trường hợp thêm mới
+      setOutboundReceiptData(prevState => ({
+        ...prevState,
+        ProductList: [
+          ...prevState.ProductList,
+          { ProductID: newProduct.ProductID, Quantity: newProduct.Quantity },
+        ],
+      }));
+    }
+
+    setNewProduct({ ProductID: "", Quantity: 0 });
     setErrorMessage("");
     setIsProductFormOpen(false);
   };
 
+  const handleEditProduct = (index, product) => {
+    setNewProduct({ ProductID: product.ProductID, Quantity: product.Quantity });
+    setProductStock(inventory.find(item => item.id === product.ProductID)?.Quantity || 0);
+    setIsProductFormOpen(true);
+    setEditingProductIndex(index); // Lưu index của sản phẩm đang chỉnh sửa
+  };
+
   const handleSave = async () => {
     try {
+      const updatedInventory = [...inventory];
       for (const product of outboundReceiptData.ProductList) {
-        const productRef = doc(db, "Inventory", product.Product);
-        const selectedProduct = inventory.find((item) => item.id === product.Product);
+        const productIndex = updatedInventory.findIndex(
+          (item) => item.id === product.ProductID
+        );
 
-        if (selectedProduct) {
-          const remainingQuantity = selectedProduct.quantity - product.Quantity;
-
-          if (remainingQuantity > 0) {
-            await updateDoc(productRef, { Quantity: remainingQuantity });
-          } else if (remainingQuantity === 0) {
-            await deleteDoc(productRef);
-          }
+        if (productIndex !== -1) {
+          const selectedProduct = updatedInventory[productIndex];
+          const remainingQuantity = selectedProduct.Quantity - product.Quantity;
+            // Cập nhật số lượng kho nếu remainingQuantity = 0
+        if (remainingQuantity === 0) {
+          updatedInventory[productIndex].Quantity = 0;
+          await updateDoc(doc(db, "Inventory", product.ProductID), {
+            Quantity: 0,
+          });
+        } else {
+          updatedInventory[productIndex].Quantity = remainingQuantity;
+          await updateDoc(doc(db, "Inventory", product.ProductID), {
+            Quantity: remainingQuantity,
+          });
         }
       }
+    }
+
+      // Cập nhật state inventory sau khi đã xử lý xong
+      setInventory(updatedInventory);
 
       const newOutboundReceipt = {
         ...outboundReceiptData,
@@ -123,15 +160,27 @@ const AddOutboundReceiptModal = () => {
     return null;
   }
 
+  // Lọc danh sách sản phẩm, loại bỏ những sản phẩm đã được chọn
+  const availableInventory = inventory.filter(
+    (item) => item.Quantity > 0 && !outboundReceiptData.ProductList.some(
+      (product) => product.ProductID === item.id
+    )
+  );
+
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[600px]">
-        <h3 className="text-lg font-bold mb-4 text-black">Add New Outbound Receipt</h3>
+        <h3 className="text-lg font-bold mb-4 text-black">
+          Add New Outbound Receipt
+        </h3>
 
         <select
           value={outboundReceiptData.StaffID}
           onChange={(e) =>
-            setOutboundReceiptData({ ...outboundReceiptData, StaffID: e.target.value })
+            setOutboundReceiptData({
+              ...outboundReceiptData,
+              StaffID: e.target.value,
+            })
           }
           className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
         >
@@ -146,7 +195,10 @@ const AddOutboundReceiptModal = () => {
         <select
           value={outboundReceiptData.CustomerID}
           onChange={(e) =>
-            setOutboundReceiptData({ ...outboundReceiptData, CustomerID: e.target.value })
+            setOutboundReceiptData({
+              ...outboundReceiptData,
+              CustomerID: e.target.value,
+            })
           }
           className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
         >
@@ -176,9 +228,17 @@ const AddOutboundReceiptModal = () => {
             <tbody>
               {outboundReceiptData.ProductList.map((product, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{product.productId}</td>
-                  <td className="border px-4 py-2">{product.quantity}</td>
                   <td className="border px-4 py-2">
+                    {inventory.find((item) => item.id === product.ProductID)?.name ??""}
+                  </td>
+                  <td className="border px-4 py-2">{product.Quantity}</td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500 mr-2"      
+                        onClick={() => handleEditProduct(index, product)}
+                    >
+                      Edit
+                    </button>
                     <button
                       className="text-red-500"
                       onClick={() => {
@@ -201,27 +261,35 @@ const AddOutboundReceiptModal = () => {
         </div>
 
         {isProductFormOpen && (
-          <div className="mt-4">
-            <select
-              value={newProduct.productId}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, productId: e.target.value })
-              }
+        <div className="mt-4">
+          <select
+              value={newProduct.ProductID}
+              onChange={(e) => {
+                setNewProduct({ ...newProduct, ProductID: e.target.value });
+                // Cập nhật productStock ngay khi chọn sản phẩm
+                const selectedProduct = inventory.find(
+                  (item) => item.id === e.target.value
+                );
+                setProductStock(selectedProduct ? selectedProduct.Quantity : 0);
+              }}
               className="border border-black w-full mb-2 p-2"
             >
               <option value="">Select Product</option>
-              {inventory.map((item) => (
+              {availableInventory.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
               ))}
-            </select>
+          </select>
 
             <input
-              type="number"
-              value={newProduct.quantity}
+              type="text"
+              value={newProduct.Quantity}
               onChange={(e) =>
-                setNewProduct({ ...newProduct, quantity: parseInt(e.target.value) })
+                setNewProduct({
+                  ...newProduct,
+                  Quantity: parseInt(e.target.value, 10) || 0, // Xử lý trường hợp nhập không phải số
+                })
               }
               placeholder="Quantity"
               className="border border-black w-full mb-2 p-2"
@@ -231,17 +299,29 @@ const AddOutboundReceiptModal = () => {
               Available Quantity: {productStock}
             </label>
 
-            {errorMessage && (
-              <p className="text-red-500 text-sm">{errorMessage}</p>
-            )}
+            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
+          <div className="flex justify-start space-x-2">
+            <button
+              onClick={() => {
+                setNewProduct({ ProductID: "", Quantity: 0 });
+                setErrorMessage("");
+                setIsProductFormOpen(false);
+              }}
+              className="bg-gray-300 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleAddProduct}
               className="bg-blue-500 text-white px-4 py-2 rounded"
-              disabled={newProduct.quantity > productStock}
+              disabled={
+                newProduct.Quantity > productStock || newProduct.Quantity <= 0
+              }
             >
               OK
             </button>
+          </div>
           </div>
         )}
 
@@ -249,7 +329,10 @@ const AddOutboundReceiptModal = () => {
           <button onClick={closeModal} className="bg-gray-300 px-4 py-2 rounded">
             Cancel
           </button>
-          <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded">
+          <button
+            onClick={handleSave}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
             Save
           </button>
         </div>

@@ -28,7 +28,7 @@ const EditInboundReceiptModal = ({ inboundReceipt, onSave, onCancel }) => {
         setStaffs(staffList);
 
         const supplierList = supplierSnapshot.docs.map((doc) => ({
-          id: doc.data().id, // Sử dụng SupplierID làm key
+          id: doc.id, // Sử dụng SupplierID làm key
           Name: doc.data().Name,
         }));
         setSuppliers(supplierList);

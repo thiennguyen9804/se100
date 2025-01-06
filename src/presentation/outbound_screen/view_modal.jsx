@@ -1,17 +1,12 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../core/utils/firebase";
 
-const ViewOutboundModal = ({ outboundId }) => {
+const ViewOutboundModal = ({ outboundId, onCancel }) => {
   const [OutboundReceipt, setOutboundReceipt] = useState(null);
   const [staffName, setStaffName] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [products, setProducts] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  
-  const closeModal = () => {
-    setIsModalOpen(false); // Đóng modal
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,37 +32,26 @@ const ViewOutboundModal = ({ outboundId }) => {
             setCustomerName(customerSnap.data().Name);
           }
 
-          // Fetch Products related to this outboundReceipt
-      const productList = [];
-      for (const product of outboundData.ProductList) {
-        const productID = product.Product;
-        
-        // Kiểm tra xem ProductID có hợp lệ hay không
-        if (!productID) {
-          console.warn("Invalid ProductID:", productID);
-          continue;  // Nếu ProductID không hợp lệ thì bỏ qua sản phẩm này
-        }
-
-        // Fetch Product Name from Inventory based on ProductID
-        const productRef = doc(db, "Inventory", productID);
-        const productSnap = await getDoc(productRef);
-        if (productSnap.exists()) {
-          productList.push({
-            name: productSnap.data().Name,  // Get the product name from Inventory
-            quantity: product.Quantity,
-          });
-        } else {
-          console.warn(`Product with ID ${productID} not found in Inventory`);
-        }
-      }
-      setProducts(productList);
+          // Fetch Products
+          const productList = [];
+          for (const product of outboundData.ProductList || []) {
+            const productRef = doc(db, "Inventory", product.ProductID);
+            const productSnap = await getDoc(productRef);
+            if (productSnap.exists()) {
+              productList.push({
+                name: productSnap.data().Name,
+                quantity: product.Quantity,
+              });
+            }
+          }
+          setProducts(productList);
         }
       } catch (error) {
         console.error("Error fetching outbound receipt data:", error);
       }
     };
 
-    fetchData();
+    if (outboundId) fetchData();
   }, [outboundId]);
 
   if (!OutboundReceipt) {
@@ -76,7 +60,7 @@ const ViewOutboundModal = ({ outboundId }) => {
         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
           <p>Loading...</p>
           <button
-            onClick={closeModal}
+            onClick={onCancel}
             className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
           >
             Close
@@ -89,7 +73,9 @@ const ViewOutboundModal = ({ outboundId }) => {
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-lg font-bold mb-4 text-black">outbound Receipt Details</h2>
+        <h2 className="text-lg font-bold mb-4 text-black">
+          Outbound Receipt Details
+        </h2>
         <div>
           <p>Staff Name: {staffName}</p>
           <p>Customer Name: {customerName}</p>
@@ -113,14 +99,16 @@ const ViewOutboundModal = ({ outboundId }) => {
         </table>
         <div className="mt-4">
           <p>
-            Create Time: {OutboundReceipt.CreateTime?.toDate().toLocaleString() || "N/A"}
+            Create Time:{" "}
+            {OutboundReceipt.CreateTime?.toDate().toLocaleString() || "N/A"}
           </p>
           <p>
-            Update Time: {OutboundReceipt.UpdateTime?.toDate().toLocaleString() || "N/A"}
+            Update Time:{" "}
+            {OutboundReceipt.UpdateTime?.toDate().toLocaleString() || "N/A"}
           </p>
         </div>
         <button
-          onClick={closeModal}
+          onClick={onCancel}
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
         >
           Close
