@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import InboundBarChart from "./components/inbound_statistical";
 import InboundBarChartByQuarter from "./components/inbound_statistical_by_quarter";
 import OutboundBarChart from "./components/outbound_statistical"; // Import OutboundBarChart
+import OutboundBarChartByQuarter from "./components/outbound_statistical_by_quarter";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -46,9 +47,13 @@ function Export() {
 
 const StatisticalScreen = () => {
   const [chartType, setChartType] = useState("inbound"); // Mặc định hiển thị InboundBarChart
-
+  const [outboundChartType, setOutboundChartType] = useState('outbound')
   const handleChartTypeChange = (event) => {
     setChartType(event.target.value);
+  };
+
+  const handleOutboundChartTypeChange = (event) => {
+    setOutboundChartType(event.target.value);
   };
 
   return (
@@ -67,11 +72,26 @@ const StatisticalScreen = () => {
           className="border border-gray-400 px-4 py-2 rounded"
         >
           <option value="inbound">Inbound</option>
-          <option value="outbound">Outbound</option>
+          <option value="inbound_quarter">Inbound By Quarter</option>
         </select>
       </div>
       <div style={{ marginTop: "50px" }}>
-        {chartType === "inbound" ? <InboundBarChart /> : <OutboundBarChart />} {/* Hiển thị chart tương ứng */}
+        {chartType === "inbound" ? <InboundBarChart /> : <InboundBarChartByQuarter />} {/* Hiển thị chart tương ứng */}
+      </div>
+      <div className="flex items-center"> {/* Sử dụng flexbox để sắp xếp các button */}
+        
+        <div className="flex-grow"></div> {/* Thêm div với flex-grow */}
+        <select
+          value={chartType}
+          onChange={handleOutboundChartTypeChange}
+          className="border border-gray-400 px-4 py-2 rounded"
+        >
+          <option value="outbound">Outbound</option>
+          <option value="outbound_quarter">Outbound By Quarter</option>
+        </select>
+      </div>
+      <div style={{ marginTop: "50px" }}>
+        {outboundChartType === "outbound" ? <OutboundBarChart /> : <OutboundBarChartByQuarter />} {/* Hiển thị chart tương ứng */}
       </div>
     </div>
   );
