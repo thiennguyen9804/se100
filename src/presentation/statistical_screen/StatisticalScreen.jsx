@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { getAllInventory } from "../../api/inventoryApi";
 import { Timestamp } from "firebase/firestore";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import InboundBarChart from "./components/inbound_statistical";
+import OutboundBarChart from "./components/outbound_statistical"; // Import OutboundBarChart
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -40,19 +42,36 @@ function Export() {
     saveAs(blob, "InventoryData.xlsx");
   });
 }
+
 const StatisticalScreen = () => {
+  const [chartType, setChartType] = useState("inbound"); // Mặc định hiển thị InboundBarChart
+
+  const handleChartTypeChange = (event) => {
+    setChartType(event.target.value);
+  };
+
   return (
     <div className="h-screen bg-white p-4 shadow-md flex flex-col overflow-x-auto">
-      <button
-        onClick={Export}
-        className="bg-blue-500 text-white px-4 py-2 w-full max-w-xs rounded"
-      >
-        Export Inventory Excel File
-      </button>
-      <div style={{ marginTop: '50px' }}>
-        <InboundBarChart />
+      <div className="flex items-center"> {/* Sử dụng flexbox để sắp xếp các button */}
+        <button
+          onClick={Export}
+          className="bg-blue-500 text-white px-4 py-2 w-full max-w-xs rounded mr-2" // Thêm margin-right
+        >
+          Export Inventory Excel File
+        </button>
+        <div className="flex-grow"></div> {/* Thêm div với flex-grow */}
+  <select
+    value={chartType}
+    onChange={handleChartTypeChange}
+    className="border border-gray-400 px-4 py-2 rounded"
+  >
+    <option value="inbound">Inbound</option>
+    <option value="outbound">Outbound</option>
+  </select>
       </div>
-
+      <div style={{ marginTop: "50px" }}>
+        {chartType === "inbound" ? <InboundBarChart /> : <OutboundBarChart />} {/* Hiển thị chart tương ứng */}
+      </div>
     </div>
   );
 };
