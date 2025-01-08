@@ -23,9 +23,9 @@ function countRecordsByQuarter(data) {
 
 export const handleDataByQuarter = async () => {
   try {
-	const inboundData = await getAllOutbound();
+	const outbound = await getAllOutbound();
 	// Convert data từ timestamp về lại date
-	const formattedData = inboundData.map((item) => ({
+	const formattedData = outbound.map((item) => ({
 	  CreateTime: convertTimestampToDate(item.CreateTime),
 	}));
 	// Dùng getMonth để xác định tháng của từng record
