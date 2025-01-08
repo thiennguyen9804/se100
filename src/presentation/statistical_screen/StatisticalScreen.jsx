@@ -3,6 +3,7 @@ import { Timestamp } from "firebase/firestore";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import InboundBarChart from "./components/inbound_statistical";
+import InboundBarChartByQuarter from "./components/inbound_statistical_by_quarter";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -51,6 +52,7 @@ const StatisticalScreen = () => {
       </button>
       <div style={{ marginTop: '50px' }}>
         <InboundBarChart />
+        <InboundBarChartByQuarter />
       </div>
 
     </div>

@@ -16,6 +16,8 @@ function countRecords(data) {
   const monthCounter = Array(12).fill(0);
   // Lặp qua vòng lặp cần đếm, nếu xuất hiện phần tử thì bộ đếm + 1   
   data.forEach(element => {
+    
+    console.log("🚀 ~ countRecords ~ element:", element)
     monthCounter[element] = (monthCounter[element] || 0) + 1;
   });
 

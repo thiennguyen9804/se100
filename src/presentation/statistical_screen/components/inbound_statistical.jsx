@@ -1,7 +1,7 @@
 import React from "react";
 import { BarChart } from '@mui/x-charts/BarChart';
 import { axisClasses } from '@mui/x-charts/ChartsAxis';
-import { valueFormatter, handleData} from './inbound_data';
+import { valueFormatter, handleData } from './inbound_data';
 
 
 const chartSetting = {
@@ -24,16 +24,16 @@ export default function InboundBarChart() {
   const [tickPlacement, setTickPlacement] = React.useState('middle');
   const [tickLabelPlacement, setTickLabelPlacement] = React.useState('middle');
 
-    async function getData() {
-      try {
-        const result = await handleData(); // Wait for the promise to resolve
-        setData(result); // Set the data (array) when resolved
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
+  React.useEffect(() => {
+    (async function () {
+      const result = await handleData();
+      if (result) {
+        console.log("🚀 ~ result:", result)
 
-    getData(); // Call the function to fetch data
+        setData(result);
+      }
+    })()
+  }, [])
 
   return (
     <div>
