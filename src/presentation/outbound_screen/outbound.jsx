@@ -175,14 +175,12 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
     <div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
         <div className="space-x-2">
-          {currentUser.Role === "manager" && (
             <button
               onClick={handleAddNewClick}
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
               NEW
             </button>
-          )}
           <button
             onClick={fetchData}
             className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
@@ -232,7 +230,6 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
                   <td className="border border-gray-300 px-4 py-2">
                     {item.UpdateTime ? convertTimestampToDate(item.UpdateTime) : "N/A"}
                   </td>
-                  {currentUser.Role === "manager" && (
                     <td className="border border-gray-300 px-4 py-2 flex">
                       <button
                         onClick={() => handleViewClick(item)}
@@ -240,6 +237,8 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
                       >
                         View
                       </button>
+                      {currentUser.Role !== "employee" && (
+                        <>
                       <button
                         onClick={() => setEditOutboundReceipt(item)}
                         className="bg-blue-500 text-white px-2 py-1 ml-2 rounded"
@@ -252,8 +251,10 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
                       >
                         Delete
                       </button>
+                      </>
+                              )}
                     </td>
-                  )}
+          
                 </tr>
               ))
             ) : (
