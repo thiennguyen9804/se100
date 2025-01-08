@@ -24,16 +24,16 @@ export default function OutboundBarChart() {
   const [tickPlacement, setTickPlacement] = React.useState('middle');
   const [tickLabelPlacement, setTickLabelPlacement] = React.useState('middle');
 
-    async function getData() {
-      try {
-        const result = await handleData(); // Wait for the promise to resolve
-        setData(result); // Set the data (array) when resolved
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-
-    getData(); // Call the function to fetch data
+    React.useEffect(() => {
+        (async function () {
+          const result = await handleData();
+          if (result) {
+            console.log("🚀 ~ result:", result)
+    
+            setData(result);
+          }
+        })()
+      }, [])
 
   return (
     <div>
