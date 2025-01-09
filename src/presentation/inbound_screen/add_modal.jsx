@@ -73,6 +73,7 @@ useEffect(() => {
             .filter(
               (doc) =>
                 doc.data().Supplier === inboundReceiptData.SupplierID
+              
             )
             .map((doc) => ({
               id: doc.id,
@@ -136,15 +137,11 @@ const handleSave = async () => {
   }, [newProduct.ProductID, inventory]);
 
   const handleAddProduct = () => {
-    if (!newProduct.ProductID || newProduct.Quantity <= 0) {
+    if (!newProduct.ProductID) {
       alert("Please fill in all product fields.");
       return;
     }
 
-    if (newProduct.Quantity > productStock) {
-      alert("Không được nhập quá số lượng hiện có");
-      return;
-    }
 
     if (editingProductIndex !== null) {  // Trường hợp chỉnh sửa
       setInboundReceiptData(prevState => {
@@ -189,7 +186,7 @@ const handleSave = async () => {
 
   // Lọc danh sách sản phẩm, loại bỏ những sản phẩm đã được chọn
   const availableInventory = inventory.filter(
-    (item) => item.Quantity > 0 && !inboundReceiptData.ProductList.some(
+    (item) =>!inboundReceiptData.ProductList.some(
       (product) => product.ProductID === item.id
     )
   );
@@ -342,9 +339,6 @@ const handleSave = async () => {
             <button
               onClick={handleAddProduct}
               className="bg-blue-500 text-white px-4 py-2 rounded"
-              disabled={
-                newProduct.Quantity > productStock || newProduct.Quantity <= 0
-              }
             >
               OK
             </button>

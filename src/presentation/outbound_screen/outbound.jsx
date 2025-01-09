@@ -11,9 +11,7 @@ import AddOutboundReceiptModal from "./add_modal";
 import ViewOutboundModal from "./view_modal";
 import { useQuery } from "@tanstack/react-query";
 import {
-  getAllOutbound,
   addNewOutbound,
-  updateOutbound,
   deleteOutbound,
 } from "../../api/outboundApi";
 
@@ -38,8 +36,6 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
   const [deleteOutboundReceiptId, setDeleteOutboundReceiptId] = useState(null);
   const [selectedOutboundId, setSelectedOutboundId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [staffs, setStaffs] = useState({});
-  const [customers, setCustomers] = useState({});
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -128,23 +124,6 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
           .includes(searchLower))
     );
   });
-
-  const saveEdit = async (updatedData) => {
-    console.log("Updated Data:", updatedData);  // Kiểm tra dữ liệu
-    const { id } = updatedData || {};  // Kiểm tra để tránh lỗi khi updatedData là undefined
-  
-    if (!id) {
-      console.error("Receipt ID is undefined.");
-      return;
-    }
-  
-    try {
-      await updateOutbound(id, updatedData); // Gọi API với ID và dữ liệu
-      fetchData(); // Refresh danh sách sau khi cập nhật thành công
-    } catch (error) {
-      console.error("Error saving edit:", error);
-    }
-  };
 
   const confirmDelete = async (deleteOutboundReceiptId, setDeleteOutboundReceiptId) => {
     if (!deleteOutboundReceiptId) return;
@@ -277,14 +256,6 @@ const OutboundReceiptScreen = ({ isSidebarOpen }) => {
       {editOutboundReceipt && (
         <EditModal
         OutboundReceipt={editOutboundReceipt}
-        // onSave={(updatedOutboundReceipt) => {
-        //   if (updatedOutboundReceipt.id) {
-        //     console.log(updatedOutboundReceipt.id),
-        //     saveEdit(updatedOutboundReceipt); // Gọi hàm saveEdit với dữ liệu cập nhật nếu có id
-        //   } else {
-        //     console.error("Updated data is missing ID!");
-        //   }
-        // }}
         onSave={handleSave}
         onCancel={() => setEditOutboundReceipt(null)}
       />
