@@ -55,7 +55,6 @@ const confirmDelete = async (deleteProductId, setDeleteProductId, refetch) => {
 
 const handleAddNewClick = async (product, setAddProduct, refetch) => {
   try {
-    product.Location = "chưa nhập";
     product.Quantity = 0;
     product.CreateTime = Timestamp.now();
     product.UpdateTime = Timestamp.now();

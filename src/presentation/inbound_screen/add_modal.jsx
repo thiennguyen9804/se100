@@ -38,7 +38,10 @@ const AddInboundReceiptModal = () => {
         const inventorySnapshot = await getDocs(collection(db, "Inventory"));
 
         setStaffs(
-          staffSnapshot.docs.map((doc) => ({ id: doc.id, name: doc.data().Name }))
+          staffSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            name: doc.data().Name,
+          }))
         );
         setSuppliers(
           supplierSnapshot.docs.map((doc) => ({
@@ -61,100 +64,103 @@ const AddInboundReceiptModal = () => {
   }, []);
 
   // Lọc danh sách sản phẩm dựa trên SupplierID
-useEffect(() => {
-  if (inboundReceiptData.SupplierID) {
-    const fetchProductsBySupplier = async () => {
-      try {
-        const inventorySnapshot = await getDocs(
-          collection(db, "Inventory")
-        );
-        setInventory(
-          inventorySnapshot.docs
-            .filter(
-              (doc) =>
-                doc.data().Supplier === inboundReceiptData.SupplierID
-              
-            )
-            .map((doc) => ({
-              id: doc.id,
-              name: doc.data().Name,
-              Quantity: doc.data().Quantity,
-            }))
-        );
-      } catch (error) {
-        console.error("Error fetching products by supplier:", error);
-      }
-    };
-    fetchProductsBySupplier();
-  } else {
-    setInventory([]);
-  }
-}, [inboundReceiptData.SupplierID]);
-
-const handleSave = async () => {
-  try {
-    const updatedInventory = [...inventory];
-
-    for (const product of inboundReceiptData.ProductList) {
-      const productIndex = updatedInventory.findIndex(
-        (item) => item.id === product.ProductID
-      );
-
-      if (productIndex !== -1) {
-        const selectedProduct = updatedInventory[productIndex];
-        const newQuantity = selectedProduct.Quantity + product.Quantity;
-
-        // Cập nhật số lượng trong cơ sở dữ liệu
-        updatedInventory[productIndex].Quantity = newQuantity;
-        await updateDoc(doc(db, "Inventory", product.ProductID), {
-          Quantity: newQuantity,
-        });
-      }
+  useEffect(() => {
+    if (inboundReceiptData.SupplierID) {
+      const fetchProductsBySupplier = async () => {
+        try {
+          const inventorySnapshot = await getDocs(collection(db, "Inventory"));
+          setInventory(
+            inventorySnapshot.docs
+              .filter(
+                (doc) => doc.data().Supplier === inboundReceiptData.SupplierID
+              )
+              .map((doc) => ({
+                id: doc.id,
+                name: doc.data().Name,
+                Quantity: doc.data().Quantity,
+              }))
+          );
+        } catch (error) {
+          console.error("Error fetching products by supplier:", error);
+        }
+      };
+      fetchProductsBySupplier();
+    } else {
+      setInventory([]);
     }
+  }, [inboundReceiptData.SupplierID]);
 
-    // Cập nhật state inventory sau khi xử lý xong
-    setInventory(updatedInventory);
+  const handleSave = async () => {
+    try {
+      const updatedInventory = [...inventory];
 
-    const newInboundReceipt = {
-      ...inboundReceiptData,
-      CreateTime: serverTimestamp(),
-      UpdateTime: serverTimestamp(),
-    };
+      for (const product of inboundReceiptData.ProductList) {
+        const productIndex = updatedInventory.findIndex(
+          (item) => item.id === product.ProductID
+        );
 
-    await addDoc(collection(db, "InboundReceipt"), newInboundReceipt);
-    console.log("Inbound receipt saved successfully.");
-    setIsModalOpen(false);
-  } catch (error) {
-    console.error("Error saving inbound receipt:", error);
-  }
-};
+        if (productIndex !== -1) {
+          const selectedProduct = updatedInventory[productIndex];
+          const newQuantity = selectedProduct.Quantity + product.Quantity;
 
+          // Cập nhật số lượng trong cơ sở dữ liệu
+          updatedInventory[productIndex].Quantity = newQuantity;
+          await updateDoc(doc(db, "Inventory", product.ProductID), {
+            Quantity: newQuantity,
+          });
+        }
+      }
 
-   // Update product stock on product selection
-   useEffect(() => {
-    const selectedProduct = inventory.find(item => item.id === newProduct.ProductID);
+      // Cập nhật state inventory sau khi xử lý xong
+      setInventory(updatedInventory);
+
+      const newInboundReceipt = {
+        ...inboundReceiptData,
+        CreateTime: serverTimestamp(),
+        UpdateTime: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "InboundReceipt"), newInboundReceipt);
+      console.log("Inbound receipt saved successfully.");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving inbound receipt:", error);
+    }
+  };
+
+  // Update product stock on product selection
+  useEffect(() => {
+    const selectedProduct = inventory.find(
+      (item) => item.id === newProduct.ProductID
+    );
     setProductStock(selectedProduct ? selectedProduct.Quantity : 0);
   }, [newProduct.ProductID, inventory]);
 
   const handleAddProduct = () => {
-    if (!newProduct.ProductID) {
+    if (!newProduct.ProductID || newProduct.Quantity <= 0) {
       alert("Please fill in all product fields.");
       return;
     }
 
+    if (newProduct.Quantity > productStock) {
+      alert("Không được nhập quá số lượng hiện có");
+      return;
+    }
 
-    if (editingProductIndex !== null) {  // Trường hợp chỉnh sửa
-      setInboundReceiptData(prevState => {
+    if (editingProductIndex !== null) {
+      // Trường hợp chỉnh sửa
+      setInboundReceiptData((prevState) => {
         const updatedProductList = [...prevState.ProductList];
-        updatedProductList[editingProductIndex] = { 
-          ProductID: newProduct.ProductID, 
-          Quantity: newProduct.Quantity 
+        updatedProductList[editingProductIndex] = {
+          ProductID: newProduct.ProductID,
+          Quantity: newProduct.Quantity,
         };
         return { ...prevState, ProductList: updatedProductList };
       });
       setEditingProductIndex(null); // Reset editingProductIndex
-    } else { // Trường hợp thêm mới
-      setInboundReceiptData(prevState => ({
+    } else {
+      // Trường hợp thêm mới
+      setInboundReceiptData((prevState) => ({
         ...prevState,
         ProductList: [
           ...prevState.ProductList,
@@ -170,11 +176,12 @@ const handleSave = async () => {
 
   const handleEditProduct = (index, product) => {
     setNewProduct({ ProductID: product.ProductID, Quantity: product.Quantity });
-    setProductStock(inventory.find(item => item.id === product.ProductID)?.Quantity || 0);
+    setProductStock(
+      inventory.find((item) => item.id === product.ProductID)?.Quantity || 0
+    );
     setIsProductFormOpen(true);
     setEditingProductIndex(index); // Lưu index của sản phẩm đang chỉnh sửa
   };
-
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -186,9 +193,11 @@ const handleSave = async () => {
 
   // Lọc danh sách sản phẩm, loại bỏ những sản phẩm đã được chọn
   const availableInventory = inventory.filter(
-    (item) =>!inboundReceiptData.ProductList.some(
-      (product) => product.ProductID === item.id
-    )
+    (item) =>
+      item.Quantity > 0 &&
+      !inboundReceiptData.ProductList.some(
+        (product) => product.ProductID === item.id
+      )
   );
 
   return (
@@ -253,22 +262,24 @@ const handleSave = async () => {
               {inboundReceiptData.ProductList.map((product, index) => (
                 <tr key={index}>
                   <td className="border px-4 py-2">
-                    {inventory.find((item) => item.id === product.ProductID)?.name ??""}
+                    {inventory.find((item) => item.id === product.ProductID)
+                      ?.name ?? ""}
                   </td>
                   <td className="border px-4 py-2">{product.Quantity}</td>
                   <td className="border px-4 py-2">
                     <button
-                      className="text-blue-500 mr-2"      
-                        onClick={() => handleEditProduct(index, product)}
+                      className="text-blue-500 mr-2"
+                      onClick={() => handleEditProduct(index, product)}
                     >
                       Edit
                     </button>
                     <button
                       className="text-red-500"
                       onClick={() => {
-                        const updatedProductList = inboundReceiptData.ProductList.filter(
-                          (_, idx) => idx !== index
-                        );
+                        const updatedProductList =
+                          inboundReceiptData.ProductList.filter(
+                            (_, idx) => idx !== index
+                          );
                         setInboundReceiptData({
                           ...inboundReceiptData,
                           ProductList: updatedProductList,
@@ -285,8 +296,8 @@ const handleSave = async () => {
         </div>
 
         {isProductFormOpen && (
-        <div className="mt-4">
-          <select
+          <div className="mt-4">
+            <select
               value={newProduct.ProductID}
               onChange={(e) => {
                 setNewProduct({ ...newProduct, ProductID: e.target.value });
@@ -304,7 +315,7 @@ const handleSave = async () => {
                   {item.name}
                 </option>
               ))}
-          </select>
+            </select>
 
             <input
               type="text"
@@ -323,31 +334,39 @@ const handleSave = async () => {
               Available Quantity: {productStock}
             </label>
 
-            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-red-500 text-sm">{errorMessage}</p>
+            )}
 
-          <div className="flex justify-start space-x-2">
-            <button
-              onClick={() => {
-                setNewProduct({ ProductID: "", Quantity: 0 });
-                setErrorMessage("");
-                setIsProductFormOpen(false);
-              }}
-              className="bg-gray-300 px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAddProduct}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              OK
-            </button>
-          </div>
+            <div className="flex justify-start space-x-2">
+              <button
+                onClick={() => {
+                  setNewProduct({ ProductID: "", Quantity: 0 });
+                  setErrorMessage("");
+                  setIsProductFormOpen(false);
+                }}
+                className="bg-gray-300 px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddProduct}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+                disabled={
+                  newProduct.Quantity > productStock || newProduct.Quantity <= 0
+                }
+              >
+                OK
+              </button>
+            </div>
           </div>
         )}
 
         <div className="flex justify-end space-x-2 mt-4">
-          <button onClick={closeModal} className="bg-gray-300 px-4 py-2 rounded">
+          <button
+            onClick={closeModal}
+            className="bg-gray-300 px-4 py-2 rounded"
+          >
             Cancel
           </button>
           <button
