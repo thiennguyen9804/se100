@@ -10,7 +10,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-const AddOutboundReceiptModal = () => {
+const AddOutboundReceiptModal = ({onAddNew}) => {
   const [staffs, setStaffs] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -24,6 +24,7 @@ const AddOutboundReceiptModal = () => {
     ProductID: "",
     Quantity: 0,
   });
+
   const [productStock, setProductStock] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
