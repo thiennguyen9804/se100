@@ -53,6 +53,13 @@ const AddModal = ({ product, onSave, onCancel }) => {
           onChange={(e) => handleChange("Unit", e.target.value)}
           className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
         />
+        <input
+          type="text"
+          placeholder="Location"
+          value={productData.Location || ""}
+          onChange={(e) => handleChange("Location", e.target.value)}
+          className="border border-black bg-white text-black px-4 py-2 w-full mb-2"
+        />
         <select
           value={productData.Supplier || ""}
           onChange={(e) => {
