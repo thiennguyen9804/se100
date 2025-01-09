@@ -1,19 +1,42 @@
 import { db } from "../core/utils/firebase";
 import {
   collection,
+  getDoc,
   getDocs,
   updateDoc,
   deleteDoc,
   doc,
+  addDoc,
 } from "firebase/firestore";
 
 export const getAllInventory = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, "Inventory"));
-    const fetchedData = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const fetchedData = await Promise.all(
+      querySnapshot.docs.map(async (document) => {
+        const inventoryData = { id: document.id, ...document.data() };
+        if (inventoryData.Supplier) {
+          try {
+            // Lấy thông tin từ collection Suppliers
+            const supplierDoc = await getDoc(
+              doc(db, "Supplier", inventoryData.Supplier)
+            );
+            if (supplierDoc.exists()) {
+              inventoryData.supplierName = supplierDoc.data().Name; // Gắn tên supplier
+            } else {
+              console.warn(
+                `Supplier with ID ${inventoryData.Supplier} not found.`
+              );
+              inventoryData.supplierName = "Unknown Supplier";
+            }
+          } catch (supplierError) {
+            console.error("Error fetching supplier data:", supplierError);
+            inventoryData.supplierName = "Error fetching supplier";
+          }
+        }
+        return inventoryData;
+      })
+    );
     return fetchedData;
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -40,4 +63,18 @@ export const deleteInventory = async (productId) => {
     console.error("Error deleting product:", error);
     throw error;
   }
+};
+
+export const getSupplierByID = async (id) => {
+  try {
+    const receiptRef = doc(db, "InboundReceipt", receiptId);
+    const docSnap = await getDoc(doc);
+  } catch (error) {}
+}; //if need
+
+export const addProductInfo = async (product) => {
+  try {
+    const ref = collection(db, "Inventory");
+    await addDoc(ref, product);
+  } catch (error) {}
 };

@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { useInventory } from "../../hooks/useInventory";
 import { Timestamp } from "firebase/firestore";
-import { updateInventory, deleteInventory } from "../../api/inventoryApi";
+import {
+  updateInventory,
+  deleteInventory,
+  addProductInfo,
+} from "../../api/inventoryApi";
 import EditModal from "./edit_modal";
 import DeleteModal from "./delete_modal";
 import { useQuery } from "@tanstack/react-query";
+import AddModal from "./add_modal";
 
 function convertTimestampToDate(timestamp) {
   if (timestamp instanceof Timestamp) {
@@ -48,7 +53,20 @@ const confirmDelete = async (deleteProductId, setDeleteProductId, refetch) => {
   }
 };
 
-const InventoryScreen = ({ isSidebarOpen }) => {
+const handleAddNewClick = async (product, setAddProduct, refetch) => {
+  try {
+    product.Location = "chưa nhập";
+    product.Quantity = 0;
+    product.CreateTime = Timestamp.now();
+    product.UpdateTime = Timestamp.now();
+
+    await addProductInfo(product);
+    setAddProduct(null);
+    refetch();
+  } catch (error) {}
+};
+
+const ProductInfoScreen = ({ isSidebarOpen }) => {
   const { data: currentUser } = useQuery({
     queryKey: ["currentUser"],
     enalble: false,
@@ -58,6 +76,7 @@ const InventoryScreen = ({ isSidebarOpen }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editProduct, setEditProduct] = useState(null);
   const [deleteProductId, setDeleteProductId] = useState(null);
+  const [addProduct, setAddProduct] = useState(null);
 
   // Lọc sản phẩm theo từ khóa tìm kiếm
   const filteredInventory = inventoryList?.filter((item) => {
@@ -65,20 +84,19 @@ const InventoryScreen = ({ isSidebarOpen }) => {
 
     // Kiểm tra từng thuộc tính của sản phẩm
     return (
-      item.Quantity > 0 && // Điều kiện số lượng lớn hơn 0
-      (item.id?.toLowerCase().includes(searchLower) ||
-        item.Name?.toLowerCase().includes(searchLower) ||
-        item.ProductType?.toLowerCase().includes(searchLower) ||
-        item.Quantity?.toString().includes(searchLower) ||
-        item.Location?.toLowerCase().includes(searchLower) ||
-        (item.CreateTime &&
-          convertTimestampToDate(item.CreateTime)
-            .toLowerCase()
-            .includes(searchLower)) ||
-        (item.UpdateTime &&
-          convertTimestampToDate(item.UpdateTime)
-            .toLowerCase()
-            .includes(searchLower)))
+      item.id?.toLowerCase().includes(searchLower) ||
+      item.Name?.toLowerCase().includes(searchLower) ||
+      item.ProductType?.toLowerCase().includes(searchLower) ||
+      item.Quantity?.toString().includes(searchLower) ||
+      item.Location?.toLowerCase().includes(searchLower) ||
+      (item.CreateTime &&
+        convertTimestampToDate(item.CreateTime)
+          .toLowerCase()
+          .includes(searchLower)) ||
+      (item.UpdateTime &&
+        convertTimestampToDate(item.UpdateTime)
+          .toLowerCase()
+          .includes(searchLower))
     );
   });
 
@@ -86,7 +104,14 @@ const InventoryScreen = ({ isSidebarOpen }) => {
     <div className="h-screen bg-white p-4 shadow-md overflow-x-auto">
       <div className="flex justify-between items-center mb-4">
         {/* Buttons */}
+
         <div className="space-x-2">
+          <button
+            onClick={() => setAddProduct(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          >
+            NEW
+          </button>
           <button
             onClick={refetch} // Gọi refetch khi bấm Refresh
             className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
@@ -114,9 +139,8 @@ const InventoryScreen = ({ isSidebarOpen }) => {
               <th className="border border-gray-300 px-4 py-2">Inventory ID</th>
               <th className="border border-gray-300 px-4 py-2">Product Name</th>
               <th className="border border-gray-300 px-4 py-2">Product Type</th>
-              <th className="border border-gray-300 px-4 py-2">Quantity</th>
               <th className="border border-gray-300 px-4 py-2">Unit</th>
-              <th className="border border-gray-300 px-4 py-2">Location</th>
+              <th className="border border-gray-300 px-4 py-2">Supplier</th>
               <th className="border border-gray-300 px-4 py-2">Create Time</th>
               <th className="border border-gray-300 px-4 py-2">Update Time</th>
               <th className="border border-gray-300 px-4 py-2">Action</th>
@@ -142,13 +166,10 @@ const InventoryScreen = ({ isSidebarOpen }) => {
                     {item.ProductType}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {item.Quantity}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
                     {item.Unit}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {item.Location}
+                    {item.supplierName}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {item.CreateTime
@@ -225,8 +246,17 @@ const InventoryScreen = ({ isSidebarOpen }) => {
           onCancel={() => setDeleteProductId(null)} // Đóng modal
         />
       )}
+      {addProduct && (
+        <AddModal
+          product={addProduct}
+          onSave={(addedProduct) =>
+            handleAddNewClick(addedProduct, setAddProduct, refetch)
+          }
+          onCancel={() => setAddProduct(null)} // Đóng modal
+        />
+      )}
     </div>
   );
 };
 
-export default InventoryScreen;
+export default ProductInfoScreen;

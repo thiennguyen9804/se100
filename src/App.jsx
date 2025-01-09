@@ -6,7 +6,7 @@ import StaffScreen from "./presentation/staff_screen/StaffScreen";
 import SupplierScreen from "./presentation/supplier_screen/SupplierScreen";
 import InventoryScreen from "./presentation/inventory_screen/inventory";
 import CustomerScreen from "./presentation/customer_screen/CustomerScreen";
-import ProtectedRoute from "./core/presentation/ProtectedRoute";
+import ProductInfoScreen from "./presentation/product_info/productInfoScreen";
 import InboundReceiptScreen from "./presentation/inbound_screen/inbound";
 import OutboundReceiptScreen from "./presentation/outbound_screen/outbound";
 import { LoginScreen } from "./presentation/auth_screen";
@@ -45,6 +45,10 @@ function App() {
                 <Route
                   path="/warehouse/inventory"
                   element={<InventoryScreen />}
+                />
+                <Route
+                  path="/warehouse/productinfo"
+                  element={<ProductInfoScreen />}
                 />
                 <Route path="/staff" element={<StaffScreen />} />
                 <Route

@@ -26,6 +26,7 @@ const Sidebar = ({ isSidebarOpen }) => {
       { name: "Outbound", icon: "📤", path: "/warehouse/outbound" },
       <hr key="hr1" />,
       { name: "Inventory", icon: "📦", path: "/warehouse/inventory" },
+      { name: "ProductInfo", icon: "📦", path: "/warehouse/productinfo" },
       <hr key="hr2" />,
       { name: "Supplier", icon: "👨‍🌾", path: "/warehouse/supplier" },
       { name: "Customer", icon: "🤵", path: "/warehouse/customer" },
