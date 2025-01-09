@@ -73,7 +73,7 @@ const AddOutboundReceiptModal = () => {
     }
 
     if (newProduct.Quantity > productStock) {
-      setErrorMessage("Không được nhập quá số lượng hiện có");
+      alert("Không được nhập quá số lượng hiện có");
       return;
     }
 

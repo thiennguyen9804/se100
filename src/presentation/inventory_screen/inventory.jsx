@@ -65,19 +65,20 @@ const InventoryScreen = ({ isSidebarOpen }) => {
 
     // Kiểm tra từng thuộc tính của sản phẩm
     return (
-      item.id?.toLowerCase().includes(searchLower) ||
-      item.Name?.toLowerCase().includes(searchLower) ||
-      item.ProductType?.toLowerCase().includes(searchLower) ||
-      item.Quantity?.toString().includes(searchLower) ||
-      item.Location?.toLowerCase().includes(searchLower) ||
-      (item.CreateTime &&
-        convertTimestampToDate(item.CreateTime)
-          .toLowerCase()
-          .includes(searchLower)) ||
-      (item.UpdateTime &&
-        convertTimestampToDate(item.UpdateTime)
-          .toLowerCase()
-          .includes(searchLower))
+      item.Quantity > 0 && // Điều kiện số lượng lớn hơn 0
+      (item.id?.toLowerCase().includes(searchLower) ||
+        item.Name?.toLowerCase().includes(searchLower) ||
+        item.ProductType?.toLowerCase().includes(searchLower) ||
+        item.Quantity?.toString().includes(searchLower) ||
+        item.Location?.toLowerCase().includes(searchLower) ||
+        (item.CreateTime &&
+          convertTimestampToDate(item.CreateTime)
+            .toLowerCase()
+            .includes(searchLower)) ||
+        (item.UpdateTime &&
+          convertTimestampToDate(item.UpdateTime)
+            .toLowerCase()
+            .includes(searchLower)))
     );
   });
 

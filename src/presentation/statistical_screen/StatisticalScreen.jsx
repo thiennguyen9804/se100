@@ -47,7 +47,7 @@ function Export() {
 
 const StatisticalScreen = () => {
   const [chartType, setChartType] = useState("inbound"); // Mặc định hiển thị InboundBarChart
-  const [outboundChartType, setOutboundChartType] = useState('outbound')
+  const [outboundChartType, setOutboundChartType] = useState("outbound")
   const handleChartTypeChange = (event) => {
     setChartType(event.target.value);
   };
@@ -82,7 +82,7 @@ const StatisticalScreen = () => {
         
         <div className="flex-grow"></div> {/* Thêm div với flex-grow */}
         <select
-          value={chartType}
+          value={outboundChartType}
           onChange={handleOutboundChartTypeChange}
           className="border border-gray-400 px-4 py-2 rounded"
         >
